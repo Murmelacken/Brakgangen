@@ -47,7 +47,7 @@ public class gameHandler extends SurfaceView implements Runnable {
     private boolean enteredEscape;
     private boolean setSpawnAnotherEnemy;
     private boolean createNewRoom;
-    private int otherSideX;
+    private int startRunningFrom;
 
     public gameHandler(Context context, int pixelsHorisontal, int pixelsVertical, boolean musicSwitch) {
         super(context);
@@ -115,16 +115,16 @@ public class gameHandler extends SurfaceView implements Runnable {
         }
     }
     private void spawnNewRoom(int[] placement){
-        if (memCharacter != null){
-            memCharacter = null;
-        }
+        //if (memCharacter != null){}
+        //memCharacter = null;
         memCharacter = new playableCharacter(this.getContext(), mSX, mSY, placement);
+        entities.add(memCharacter);
         spawnCorners();
         spawnPassage(1);
         spawnMynts((int) (Math.random() * 5)+5);
         spawnBarrels((int) (Math.random() * 10)+5);
         spawnEnemy();
-        spawnEscape(0);
+        spawnEscape(1);
     }
     private void spawnEscape(int side){
         entities.add(new escapeTunnel(this.getContext(),mSX,mSY,new int[]{0,0},side));
@@ -189,6 +189,7 @@ public class gameHandler extends SurfaceView implements Runnable {
             }else{
                 if (enteredEscape){
                     deSpawnEverything();
+                    enteredEscape = false;
                 }
                 transitionAnimationScreen();
             }
@@ -201,23 +202,29 @@ public class gameHandler extends SurfaceView implements Runnable {
 
     private void transitionAnimationScreen(){
         //TODO
-        int[] tempPass = savedPositionBeforeExit;
+        int[] reachThisDestination = savedPositionBeforeExit;
         if (runner == null){ //setup
             //lite meningslöst kanske men skapar en ny runner till animationen
             //sedan hämtar jag enbart objwidth och stoppar ut runner på rätt plats
             runner = new playableCharacter(this.getContext(),mSX,mSY,new int[]{0,0});
 
-           // tempPass[0] = tempPass[0] > mSX/2 ? mSX-runner.objWidth : runner.objWidth;
+           // reachThisDestination[0] = reachThisDestination[0] > mSX/2 ? mSX-runner.objWidth : runner.objWidth;
             if (savedPositionBeforeExit[0] > mSX/2 ){
-                tempPass[0] = runner.objWidth+25;//mSX-runner.objWidth;
-                otherSideX = mSX-runner.objWidth-25;
+                //går in på höger skärmsida
+                //
+                reachThisDestination[0] = mSX-runner.objWidth-25;
+                startRunningFrom = runner.objWidth+25;
             }else{
-                tempPass[0] = mSX-runner.objWidth-25;
-                otherSideX = runner.objWidth+25;
+                //går in på vänster sida
+                reachThisDestination[0] = runner.objWidth+25;
+                startRunningFrom = mSX-runner.objWidth-25;
+
             }
-            runner = null;
-            runner = new playableCharacter(this.getContext(),mSX,mSY,tempPass);
-            runner.setNewObjectPosition(new int[]{otherSideX,savedPositionBeforeExit[1]});
+            //savedPositionBeforeExit = reachThisDestination;
+            //runner = null;
+            runner = new playableCharacter(this.getContext(),mSX,mSY,reachThisDestination);
+            runner.setNewObjectPosition(new int[]{startRunningFrom,savedPositionBeforeExit[1]});
+            runner.changeSpeed(10.0f);
         }
             //Först förflyttar vi gubben
             //runner.runAcross((otherSideX-savedPositionBeforeExit[0])/(10));
@@ -230,11 +237,12 @@ public class gameHandler extends SurfaceView implements Runnable {
                 runner.getCurrentStateBitmap();
                 mSurface.unlockCanvasAndPost(gameCanvas);
                 Log.d("animation","gubben runner:  " + runner);
-                Log.d("animation","lite värden: " + Arrays.toString(savedPositionBeforeExit) + " " + Arrays.toString(tempPass));
+                Log.d("animation","lite värden: " + Arrays.toString(savedPositionBeforeExit) + " " + Arrays.toString(reachThisDestination));
             }
 
             // när gubben sprungit till andra sidan skärmen
-        if (runner.objectPosition[0] >= otherSideX-runner.objWidth){
+        // new int[]{savedPositionBeforeExit,savedPositionBeforeExit[1]
+        if (runner.objectPosition[0] == savedPositionBeforeExit[0]){ //mSX-runner.objWidth-2
             deSpawnEverything();
             game_pause = false;
             //spelet är igång igen

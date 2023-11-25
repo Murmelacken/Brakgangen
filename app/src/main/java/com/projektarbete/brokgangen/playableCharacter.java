@@ -22,7 +22,9 @@ public class playableCharacter extends movableEntity{
         protected int bitmapCounter;
         protected int imageCount;
         public int health;
-        ArrayList<Bitmap> movingStateBitmaps = new ArrayList<>();
+        float speed = 10.0f;
+
+    ArrayList<Bitmap> movingStateBitmaps = new ArrayList<>();
     ArrayList<Bitmap> attackingStateBitmaps = new ArrayList<>();
 
     public playableCharacter(Context context, int SX, int SY, int[] placement) {
@@ -51,26 +53,27 @@ public class playableCharacter extends movableEntity{
         //Log.d("debugging", "width x height:" + charRectangle[0] + " " + charRectangle[1]);
     }
 
-
+public void changeSpeed(float change){
+        speed = change;
+}
     public void movement(){
         int[] wP = getNewPos();
         int rim = 5;
         if (Math.abs(wP[0]-objectPosition[0]) > rim || Math.abs(wP[1]-objectPosition[1]) > rim){
             setMoving(true);
-            float deltaX = newPosition[0] - objectPosition[0];
-            float deltaY = newPosition[1] - objectPosition[1];
+            float dX = newPosition[0] - objectPosition[0];
+            float dY = newPosition[1] - objectPosition[1];
             // avståndet == hypotenusan
-            float distance = (float) Math.hypot(deltaX, deltaY);
+            float distance = (float) Math.hypot(dX, dY);
             // Normaliserar felet genom att dividera med avståndet
             // för att få enhetsvektorn (minsta enheten som sedan hanteras med skalär)
-            float unitX = deltaX / distance;
-            float unitY = deltaY / distance;
+            float unitX = dX / distance;
+            float unitY = dY / distance;
             // Ange hastighetskonstanten
-            float speed = 10.0f;
             // Beräkna det faktiska avståndet att förflytta sig
             float moveX = unitX * speed;
             float moveY = unitY * speed;
-            // Uppdatera spelarens position och
+            // Uppdatera spelarens position och låda
             updateObjectPosition((int)moveX,(int)moveY);
             setObjectCBox();
         }else{
