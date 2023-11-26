@@ -260,7 +260,7 @@ private void setCharacterRun(){
         if (memCharacter.health < 0){
             entities.remove(memCharacter);
             pauseGame();
-            writeMessage("UPPDRAGET HAR MISSLYCKATS. SLÄKTINGEN OMKOM");
+            writeMessage("UPPDRAGET HAR MISSLYCKATS");
         }
     }
     public void pauseGame() {
@@ -301,11 +301,18 @@ private void setCharacterRun(){
             RectF a = en.getObjectCBox();
             if (a == null && !(en == null)) {
             } else {
-                if (memCharacter.getObjectCBox().intersects(a.left, a.top, a.right, a.bottom)) {
-                    if (en instanceof cornerFigure || en instanceof barrel) {
+                if (RectF.intersects(memCharacter.getObjectCBox(),a)){// (memCharacter.getObjectCBox().intersects(a.left, a.top, a.right, a.bottom)) {
+
+                    if (en instanceof cornerFigure) {
                         //immovableEntity immovableObj = (immovableEntity) en;// om man behöver specifika funktioner genom heritance
                         memCharacter.onCollision(en.getObjectCBox());
                         noiseMaker.playImmovable();
+                    }else if (en instanceof barrel){
+                        //RectF pC = memCharacter.getObjectCBox();
+                        if (memCharacter.getObjectCBox().bottom > en.getObjectCBox().bottom-en.objHeight*0.33){
+                            memCharacter.onCollision(en.getObjectCBox());
+                            noiseMaker.playImmovable();
+                        }
                     }
                     else if (en instanceof myntObjekt) {
                         noiseMaker.playPling();
@@ -407,12 +414,12 @@ private void setCharacterRun(){
         float rectH = (memFontMargin+memFontSize)*2;
         memPaint.setColor(Color.BLACK);
         float widthAdjust = 50;
-        gameCanvas.drawRect(0+widthAdjust,mSY/2-rectH, mSX-widthAdjust,rectH*6,memPaint);
+        gameCanvas.drawRect(0+widthAdjust,mSY/2-rectH, mSX-widthAdjust,mSY/2+memFontSize+memFontMargin,memPaint);
         memPaint.setColor(Color.WHITE);
         memPaint.setTextSize(memFontSize);
         float txtW = memPaint.measureText(str);
         float xPos = (mSX-txtW)/2;
-        float yPos = mSY-rectH/2 + memFontSize;
+        float yPos = mSY-rectH/2 + memFontSize*2;
         gameCanvas.drawText(str, xPos, yPos, memPaint);
     }
     protected void writeText() {
