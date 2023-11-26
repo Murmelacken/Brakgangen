@@ -29,8 +29,8 @@ public class myntObjekt extends immovableEntity{
         objWidth = movingStateBitmaps.get(0).getWidth();
         objHeight = movingStateBitmaps.get(0).getHeight();
         setObjectPosition(placement);
-        Log.d("debugging", "objectCBox: " + objectCBox + " objWidth: " + objWidth + " objHeight: " + objHeight);
-        Log.d("debugging", "imagecoutn: " + imageCount);
+       // Log.d("debugging", "objectCBox: " + objectCBox + " objWidth: " + objWidth + " objHeight: " + objHeight);
+        //Log.d("debugging", "imagecoutn: " + imageCount);
 
         //bitmapHandler bh = new bitmapHandler(snurrandeMynt);
 

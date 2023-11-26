@@ -34,20 +34,19 @@ public class gameHandler extends SurfaceView implements Runnable {
     private int clickScore;
     protected boolean downPressed = false;
     protected playableCharacter memCharacter;
-    protected playableCharacter runner;
     public static int antalPengar = 10;
     public static int antalTunnor = 15;
     NoiseMaker noiseMaker;
     Bitmap bgTile;
-    private NPC enemy;
     private List<DrawObject> objectsToDraw = new ArrayList<>();
     public ArrayList<entity> entities = new ArrayList<>();
     private int[] savedPositionBeforeExit;
     private int animationOverlapCounter;
     private boolean enteredEscape;
     private boolean setSpawnAnotherEnemy;
-    private boolean createNewRoom;
+    private boolean startNewGame;
     private int startRunningFrom;
+    private int spawnEscapeTunnelOnSide = 0;
 
     public gameHandler(Context context, int pixelsHorisontal, int pixelsVertical, boolean musicSwitch) {
         super(context);
@@ -60,7 +59,7 @@ public class gameHandler extends SurfaceView implements Runnable {
         noiseMaker.setSoundPool(this.getContext(), 50);
         noiseMaker.loadAllSounds(this.getContext(), noiseMaker.songIds);
         bgTile = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.test3);
-        bgTile = scaleBitmap(bgTile, mSX, mSY);
+        bgTile = Bitmap.createScaledBitmap(bgTile,mSX,mSY,true);//scaleBitmap(bgTile, mSX, mSY);
         startGame();
         noiseMaker.bgMusic(this.getContext(), bgMusicSwitch);
         memFontMargin = mSX / 100 * 2;
@@ -82,7 +81,10 @@ public class gameHandler extends SurfaceView implements Runnable {
 
         return Bitmap.createBitmap(bp, 0, 0, originalWidth, originalHeight, matrix, false);
     }
-
+private int getAndSetEscapeTunnel(){
+  spawnEscapeTunnelOnSide = spawnEscapeTunnelOnSide == 0 ? 1 : 0;
+  return spawnEscapeTunnelOnSide;
+}
     private int[] newRandomPosition(int abX, int abY, int baX, int baY) {
         int[] position = new int[2];
         int mSXL = abX; // justera så inte figur kan gå utanför skärm typ
@@ -100,13 +102,12 @@ public class gameHandler extends SurfaceView implements Runnable {
         memCharacter = new playableCharacter(this.getContext(), mSX, mSY, new int[]{mSX / 2, 0});
         entities.add(memCharacter);
         spawnCorners();
-        enemy = new NPC(this.getContext(), mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4));
-        entities.add(enemy);
+        spawnEnemy();
         spawnPassage(0);
         spawnPassage(1);
         spawnMynts(antalPengar);
         spawnBarrels(antalTunnor);
-        spawnEscape(0);
+        spawnEscape();
     }
     private void spawnCorners(){
         for (int i = 0; i < 4; i++) {
@@ -116,18 +117,21 @@ public class gameHandler extends SurfaceView implements Runnable {
     }
     private void spawnNewRoom(int[] placement){
         //if (memCharacter != null){}
-        //memCharacter = null;
-        memCharacter = new playableCharacter(this.getContext(), mSX, mSY, placement);
-        entities.add(memCharacter);
+        //int health = memCharacter.health;
+        if (!entities.contains(memCharacter)){
+            entities.add(memCharacter);
+        }
+        memCharacter.setObjectPosition(placement);//new playableCharacter(this.getContext(), mSX, mSY, placement);
+        //memCharacter.setHealth(health);
         spawnCorners();
         spawnPassage(1);
         spawnMynts((int) (Math.random() * 5)+5);
         spawnBarrels((int) (Math.random() * 10)+5);
         spawnEnemy();
-        spawnEscape(1);
+        spawnEscape();
     }
-    private void spawnEscape(int side){
-        entities.add(new escapeTunnel(this.getContext(),mSX,mSY,new int[]{0,0},side));
+    private void spawnEscape(){
+        entities.add(new escapeTunnel(this.getContext(),mSX,mSY,new int[]{0,0},getAndSetEscapeTunnel()));
         //antingen 0 (vänster) eller 1 (höger)
     }
     private void spawnEnemy(){
@@ -136,9 +140,7 @@ public class gameHandler extends SurfaceView implements Runnable {
     }
     private void deSpawnEverything(){
         entities.clear();
-        memCharacter = null;
-        enemy = null;
-
+        entities.add(memCharacter);
     }
 
     private void spawnPassage(int i){
@@ -174,7 +176,8 @@ public class gameHandler extends SurfaceView implements Runnable {
         threadGameMem = new Thread(this);
         threadGameMem.start();
     }
-
+private boolean deSpawnOnlyOnce = false;
+    private long transitionTimer;
     @Override
     public void run() {
         while (game_running) {
@@ -188,68 +191,56 @@ public class gameHandler extends SurfaceView implements Runnable {
 
             }else{
                 if (enteredEscape){
-                    deSpawnEverything();
-                    enteredEscape = false;
+                    if (!deSpawnOnlyOnce){
+                        transitionTimer = System.currentTimeMillis();
+                        deSpawnEverything();
+                        deSpawnOnlyOnce = true;
+                        //setCharacterRun();
+                    }
+                    newTransitionAnimationScreen(System.currentTimeMillis());
+                    //transitionAnimationScreen();
                 }
-                transitionAnimationScreen();
             }
             long timePerFrame = System.currentTimeMillis() - timeFrameStart;
             if (timePerFrame > 0) {
-                framesPerSecond = 1000 / (timePerFrame);
+                framesPerSecond = 1000 / timePerFrame;
             }
         }
     }
-
-    private void transitionAnimationScreen(){
-        //TODO
-        int[] reachThisDestination = savedPositionBeforeExit;
-        if (runner == null){ //setup
-            //lite meningslöst kanske men skapar en ny runner till animationen
-            //sedan hämtar jag enbart objwidth och stoppar ut runner på rätt plats
-            runner = new playableCharacter(this.getContext(),mSX,mSY,new int[]{0,0});
-
-           // reachThisDestination[0] = reachThisDestination[0] > mSX/2 ? mSX-runner.objWidth : runner.objWidth;
-            if (savedPositionBeforeExit[0] > mSX/2 ){
-                //går in på höger skärmsida
-                //
-                reachThisDestination[0] = mSX-runner.objWidth-25;
-                startRunningFrom = runner.objWidth+25;
-            }else{
-                //går in på vänster sida
-                reachThisDestination[0] = runner.objWidth+25;
-                startRunningFrom = mSX-runner.objWidth-25;
-
-            }
-            //savedPositionBeforeExit = reachThisDestination;
-            //runner = null;
-            runner = new playableCharacter(this.getContext(),mSX,mSY,reachThisDestination);
-            runner.setNewObjectPosition(new int[]{startRunningFrom,savedPositionBeforeExit[1]});
-            runner.changeSpeed(10.0f);
+private void setCharacterRun(){
+        int[] goTo = savedPositionBeforeExit;
+        memCharacter.setObjectPosition(savedPositionBeforeExit);
+    if (savedPositionBeforeExit[0] > mSX/2){ //om höger sida
+        goTo[0] = memCharacter.objWidth+20;
+    }else{
+        goTo[0] = mSX-memCharacter.objWidth-20;
+    }
+    startRunningFrom = savedPositionBeforeExit[0];
+    memCharacter.setNewObjectPosition(goTo);
+}
+    private void newTransitionAnimationScreen(long timeElapsed){
+       // memCharacter.movement();
+        if (mSurface.getSurface().isValid() && game_pause) {
+            gameCanvas = mSurface.lockCanvas();
+            gameCanvas.drawColor(Color.BLACK);
+            //memCharacter.getCurrentStateBitmap();
+            mSurface.unlockCanvasAndPost(gameCanvas);
+            //Log.d("animation","gubben runner:  " + runner);
+            //Log.d("animation","lite värden: " + Arrays.toString(savedPositionBeforeExit));
         }
-            //Först förflyttar vi gubben
-            //runner.runAcross((otherSideX-savedPositionBeforeExit[0])/(10));
-            runner.movement();
-            //speed är ej fart utan hastighet dvs riktad vektor
-            //(före - efter) / (antal) så felet uppdelat i antal rutor
-            if (mSurface.getSurface().isValid() && game_pause) {
-                gameCanvas = mSurface.lockCanvas();
-                gameCanvas.drawColor(Color.BLACK);
-                runner.getCurrentStateBitmap();
-                mSurface.unlockCanvasAndPost(gameCanvas);
-                Log.d("animation","gubben runner:  " + runner);
-                Log.d("animation","lite värden: " + Arrays.toString(savedPositionBeforeExit) + " " + Arrays.toString(reachThisDestination));
-            }
 
-            // när gubben sprungit till andra sidan skärmen
+        // när gubben sprungit till andra sidan skärmen
         // new int[]{savedPositionBeforeExit,savedPositionBeforeExit[1]
-        if (runner.objectPosition[0] == savedPositionBeforeExit[0]){ //mSX-runner.objWidth-2
+        if (timeElapsed - transitionTimer > 400){//(memCharacter.objectPosition[0] == startRunningFrom){ //mSX-runner.objWidth-2
+            enteredEscape = false;
             deSpawnEverything();
             game_pause = false;
+            deSpawnOnlyOnce = false;
             //spelet är igång igen
             //Stoppa in nya objekt att interagera med
             spawnNewRoom(savedPositionBeforeExit);//ska vara inverterad X-position
-        }
 
+        }
     }
     public void stopBgMusicEngine() {
         NoiseMaker.stopMusic();
@@ -258,7 +249,6 @@ public class gameHandler extends SurfaceView implements Runnable {
     protected void stopGame() {
         game_pause = true;
         game_running = false;
-        // SurfaceHolder.Callback.surfaceDestroyed(mSurface);
         try {
             threadGameMem.join();
         } catch (InterruptedException e) {
@@ -268,11 +258,9 @@ public class gameHandler extends SurfaceView implements Runnable {
     }
     private void checkHealth(){
         if (memCharacter.health < 0){
-            //memCharacter = null;
             entities.remove(memCharacter);
-            //memCharacter = null;
             pauseGame();
-            //memCharacter.remove();
+            writeMessage("UPPDRAGET HAR MISSLYCKATS. SLÄKTINGEN OMKOM");
         }
     }
     public void pauseGame() {
@@ -415,6 +403,18 @@ public class gameHandler extends SurfaceView implements Runnable {
         }
     }
 
+    protected void writeMessage(String str){
+        float rectH = (memFontMargin+memFontSize)*2;
+        memPaint.setColor(Color.BLACK);
+        float widthAdjust = 50;
+        gameCanvas.drawRect(0+widthAdjust,mSY/2-rectH, mSX-widthAdjust,rectH*6,memPaint);
+        memPaint.setColor(Color.WHITE);
+        memPaint.setTextSize(memFontSize);
+        float txtW = memPaint.measureText(str);
+        float xPos = (mSX-txtW)/2;
+        float yPos = mSY-rectH/2 + memFontSize;
+        gameCanvas.drawText(str, xPos, yPos, memPaint);
+    }
     protected void writeText() {
         //
         //int backgroundColor = Color.BLACK;
@@ -435,12 +435,13 @@ public class gameHandler extends SurfaceView implements Runnable {
     public boolean onTouchEvent(MotionEvent motionEvent) {
         //downPressed = false;
         //if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == 1 && MotionEvent.ACTION_BUTTON_PRESS == 11){
-        if (memCharacter != null) {
+        //if (memCharacter != null) {
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 if (game_pause){
-                    game_pause = false;
-                    createNewRoom = true;
+                    //game_pause = false;
+                    startNewGame = true;
+                    //stopGame();
                 }
                 int tX = (int) motionEvent.getX();
                 int tY = (int) motionEvent.getY();
@@ -453,11 +454,9 @@ public class gameHandler extends SurfaceView implements Runnable {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-
                 memCharacter.setNewObjectPosition(new int[]{(int) motionEvent.getX(), (int) motionEvent.getY()});
-
                 break;
-        }}
+        }//}
         return true;
     }
 }

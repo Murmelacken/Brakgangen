@@ -52,8 +52,7 @@ public class playableCharacter extends movableEntity{
         //memObjectBox = new RectF(position[0], position[1], position[0] + charRectangle[0], position[1]+charRectangle[1]);
         //Log.d("debugging", "width x height:" + charRectangle[0] + " " + charRectangle[1]);
     }
-
-public void changeSpeed(float change){
+    public void changeSpeed(float change){
         speed = change;
 }
     public void movement(){
@@ -128,7 +127,9 @@ public void changeSpeed(float change){
     public void draw(Canvas canvas) {
 
     }
-
+    public void setHealth(int newHealth){
+            health = newHealth;
+    }
     @Override
     public void onCollision(RectF otherObject) {
         boolean chkX = objectPosition[0] >= otherObject.left + (otherObject.width() / 2);
