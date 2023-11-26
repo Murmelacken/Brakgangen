@@ -45,6 +45,8 @@ public class gameHandler extends SurfaceView implements Runnable {
     private boolean enteredEscape;
     private boolean setSpawnAnotherEnemy;
     private boolean startNewGame;
+    private boolean playerDead = false;
+    public boolean doStop = false;
     private int startRunningFrom;
     private int spawnEscapeTunnelOnSide = 0;
 
@@ -68,22 +70,9 @@ public class gameHandler extends SurfaceView implements Runnable {
         Log.d("debugging", "___STARTAR NYTT SPEL___");
         Log.d("debugging", "entities: " + entities);
     }
-
-    public static Bitmap scaleBitmap(Bitmap bp, int screenWidth, int screenHeight) {
-        int originalWidth = bp.getWidth();
-        int originalHeight = bp.getHeight();
-
-        float scaleWidth = (float) screenWidth / originalWidth;
-        float scaleHeight = (float) screenHeight / originalHeight;
-
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleWidth, scaleHeight);
-
-        return Bitmap.createBitmap(bp, 0, 0, originalWidth, originalHeight, matrix, false);
-    }
-private int getAndSetEscapeTunnel(){
-  spawnEscapeTunnelOnSide = spawnEscapeTunnelOnSide == 0 ? 1 : 0;
-  return spawnEscapeTunnelOnSide;
+    private int getAndSetEscapeTunnel(){
+      spawnEscapeTunnelOnSide = spawnEscapeTunnelOnSide == 0 ? 1 : 0;
+      return spawnEscapeTunnelOnSide;
 }
     private int[] newRandomPosition(int abX, int abY, int baX, int baY) {
         int[] position = new int[2];
@@ -97,7 +86,6 @@ private int getAndSetEscapeTunnel(){
         position[1] = (int) (mSYL + (Math.random() * (mSYH - mSYL)));
         return position;
     }
-
     private void spawnInitial() {
         memCharacter = new playableCharacter(this.getContext(), mSX, mSY, new int[]{mSX / 2, 0});
         entities.add(memCharacter);
@@ -117,13 +105,12 @@ private int getAndSetEscapeTunnel(){
     }
     private void spawnNewRoom(int[] placement){
         //if (memCharacter != null){}
-        //int health = memCharacter.health;
         if (!entities.contains(memCharacter)){
             entities.add(memCharacter);
         }
         memCharacter.setObjectPosition(placement);//new playableCharacter(this.getContext(), mSX, mSY, placement);
-        //memCharacter.setHealth(health);
         spawnCorners();
+        spawnPassage(0);
         spawnPassage(1);
         spawnMynts((int) (Math.random() * 5)+5);
         spawnBarrels((int) (Math.random() * 10)+5);
@@ -142,26 +129,23 @@ private int getAndSetEscapeTunnel(){
         entities.clear();
         entities.add(memCharacter);
     }
-
     private void spawnPassage(int i){
         entities.add(new passageWay(this.getContext(),mSX,mSY,new int[]{mSX/3,0},i));
         entities.add(new passageWay(this.getContext(),mSX,mSY,new int[]{mSX/3,0},i));
 
     }
     private void spawnMynts(int antalPengar) {
-        for (int i = 0; i < antalPengar; i++) {
+        for (int i = 0; i < antalPengar*2; i++) {
             entities.add(new myntObjekt(this.getContext(), mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4)));
 
         }
     }
-
     private void spawnBarrels(int antalTunnor) {
         for (int i = 0; i < antalTunnor; i++) {
             entities.add(new barrel(this.getContext(), mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4)));
         }
 
     }
-
     protected void setScore(int passVar) {
         clickScore += passVar;
     }
@@ -176,29 +160,29 @@ private int getAndSetEscapeTunnel(){
         threadGameMem = new Thread(this);
         threadGameMem.start();
     }
-private boolean deSpawnOnlyOnce = false;
+    private boolean deSpawnOnlyOnce = false;
     private long transitionTimer;
     @Override
     public void run() {
         while (game_running) {
             long timeFrameStart = System.currentTimeMillis();
+            if (startNewGame && playerDead){
+                stopGame();
+                doStop = true;
+            }
             if (!game_pause) {
                 if (downPressed) {
                     //something
                 }
-
                 handleFrameSetup();
-
             }else{
                 if (enteredEscape){
                     if (!deSpawnOnlyOnce){
                         transitionTimer = System.currentTimeMillis();
                         deSpawnEverything();
                         deSpawnOnlyOnce = true;
-                        //setCharacterRun();
                     }
                     newTransitionAnimationScreen(System.currentTimeMillis());
-                    //transitionAnimationScreen();
                 }
             }
             long timePerFrame = System.currentTimeMillis() - timeFrameStart;
@@ -247,6 +231,7 @@ private void setCharacterRun(){
     }
 
     protected void stopGame() {
+        Log.d("debugging", "försöker stänga av ");
         game_pause = true;
         game_running = false;
         try {
@@ -258,9 +243,11 @@ private void setCharacterRun(){
     }
     private void checkHealth(){
         if (memCharacter.health < 0){
+            deSpawnEverything();
             entities.remove(memCharacter);
-            pauseGame();
-            writeMessage("UPPDRAGET HAR MISSLYCKATS");
+            playerDead = true;
+            writeMessage();
+            //pauseGame();
         }
     }
     public void pauseGame() {
@@ -410,17 +397,26 @@ private void setCharacterRun(){
         }
     }
 
-    protected void writeMessage(String str){
+    protected void writeMessage(){
+        String wasItEnough = clickScore > 1000 ? "till" : "inte till";
+        String str = "Modige Morgan samlade";
+        String str1 = "totalt ihop " + clickScore + " mynt";
+        String str2 = "Det räckte " + wasItEnough;
+        String str3 =  "sjukhuskostnaderna";
         float rectH = (memFontMargin+memFontSize)*2;
         memPaint.setColor(Color.BLACK);
         float widthAdjust = 50;
-        gameCanvas.drawRect(0+widthAdjust,mSY/2-rectH, mSX-widthAdjust,mSY/2+memFontSize+memFontMargin,memPaint);
+        gameCanvas.drawRect(0+widthAdjust,mSY/2-rectH, mSX-widthAdjust,mSY/2+3*(memFontSize+memFontMargin),memPaint);
         memPaint.setColor(Color.WHITE);
         memPaint.setTextSize(memFontSize);
-        float txtW = memPaint.measureText(str);
-        float xPos = (mSX-txtW)/2;
-        float yPos = mSY-rectH/2 + memFontSize*2;
+        float textWidth = memPaint.measureText(str);
+        float xPos = (mSX-textWidth)/2;
+        float yPos = mSY/2-memFontSize;//-rectH/2 + memFontSize*2;
         gameCanvas.drawText(str, xPos, yPos, memPaint);
+        gameCanvas.drawText(str1, xPos, yPos+memFontSize+memFontMargin, memPaint);
+        gameCanvas.drawText(str2, xPos, yPos+2*(memFontSize+memFontMargin), memPaint);
+        gameCanvas.drawText(str3, xPos, yPos+3*(memFontSize+memFontMargin), memPaint);
+
     }
     protected void writeText() {
         //
@@ -430,7 +426,7 @@ private void setCharacterRun(){
         gameCanvas.drawRect(0, mSY - rectHeight, mSX, mSY + 75, memPaint);
         memPaint.setColor(Color.WHITE);
         memPaint.setTextSize(memFontSize); //" FPS: " + framesPerSecond +
-        String writeString = ("Score: " + clickScore + " Health: " + memCharacter.health);
+        String writeString = ("Guldpengar: " + clickScore + " Hälsa: " + memCharacter.health);
         float textWidth = memPaint.measureText(writeString);
         float xPosition = (mSX - textWidth) / 2; // Centrera texten horisontellt
         float yPosition = mSY - rectHeight / 2 + memFontSize / 3; // Centrera texten vertikalt
@@ -446,9 +442,9 @@ private void setCharacterRun(){
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 if (game_pause){
-                    //game_pause = false;
+
                     startNewGame = true;
-                    //stopGame();
+
                 }
                 int tX = (int) motionEvent.getX();
                 int tY = (int) motionEvent.getY();

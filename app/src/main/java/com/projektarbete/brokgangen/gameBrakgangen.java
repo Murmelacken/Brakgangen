@@ -10,7 +10,6 @@ import android.view.WindowManager;
 
 public class gameBrakgangen extends AppCompatActivity {
     gameHandler runningGame;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +31,6 @@ public class gameBrakgangen extends AppCompatActivity {
         }
         runningGame = runGame();
     }
-
     protected gameHandler runGame(){
         DisplayMetrics disp = getResources().getDisplayMetrics();
         gameHandler myGame = new gameHandler(this, disp.widthPixels, disp.heightPixels, MainMenu.checkSwitch());
@@ -43,7 +41,6 @@ public class gameBrakgangen extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         if (runningGame.noiseMaker != null && runningGame.bgMusicSwitch){
-            //runningGame.stopMusic();
             runningGame.stopBgMusicEngine();
         }
         runningGame.pauseGame();
@@ -51,6 +48,7 @@ public class gameBrakgangen extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
+        //if (runningGame.doStop){finish();runningGame = null;}
        // runningGame.cancelCanvas();
         runningGame.stopGame();
     }

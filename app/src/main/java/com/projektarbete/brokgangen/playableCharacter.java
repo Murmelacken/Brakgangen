@@ -12,9 +12,8 @@ import android.util.Log;
 import java.util.ArrayList;
 
 public class playableCharacter extends movableEntity{
-        protected Bitmap mBp;
         protected int[] objectPosition = new int[2];
-    public int[] newPosition = new int[2];
+        public int[] newPosition = new int[2];
         protected RectF objectCBox = new RectF();
         private boolean isMoving = false;
         protected int mSX, mSY;
