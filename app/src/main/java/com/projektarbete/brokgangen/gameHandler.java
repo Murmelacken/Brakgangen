@@ -1,6 +1,7 @@
 package com.projektarbete.brokgangen;
 
 import android.content.Context;
+import android.content.Entity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -24,10 +25,11 @@ public class gameHandler extends SurfaceView implements Runnable {
     private Thread threadGameMem = null;
     private SurfaceHolder mSurface;
     private Canvas gameCanvas;
+    EntityHolder entities;
+    //playableCharacter memCharacter;
     Paint memPaint;
     NoiseMaker noiseMaker;
-    Bitmap bgTile;
-    protected playableCharacter memCharacter;
+    //Bitmap bgTile;
     protected final int mSX;
     protected final int mSY;
     private int memFontSize;
@@ -35,12 +37,7 @@ public class gameHandler extends SurfaceView implements Runnable {
     protected long framesPerSecond;
     protected boolean bgMusicSwitch;
     private boolean drawOnceBoolean = false;
-    private int clickScore;
     protected boolean downPressed = false;
-    public static int antalPengar = 10;
-    public static int antalTunnor = 15;
-    private List<DrawObject> objectsToDraw = new ArrayList<>();
-    public ArrayList<entity> entities = new ArrayList<>();
     private int[] savedPositionBeforeExit;
     private int animationOverlapCounter;
     private boolean enteredEscape;
@@ -49,8 +46,6 @@ public class gameHandler extends SurfaceView implements Runnable {
     private boolean playerDead = false;
     public boolean doStop = false;
     private int startRunningFrom;
-    private int spawnEscapeTunnelOnSide = 0;
-
     public gameHandler(Context context, int pixelsHorisontal, int pixelsVertical, boolean musicSwitch) {
         super(context);
         bgMusicSwitch = musicSwitch;
@@ -61,94 +56,16 @@ public class gameHandler extends SurfaceView implements Runnable {
         noiseMaker = new NoiseMaker();
         noiseMaker.setSoundPool(this.getContext(), 50);
         noiseMaker.loadAllSounds(this.getContext(), noiseMaker.songIds);
-        bgTile = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.test3);
+        Bitmap bgTile = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.test3);
         bgTile = Bitmap.createScaledBitmap(bgTile,mSX,mSY,true);//scaleBitmap(bgTile, mSX, mSY);
+        entities = new EntityHolder(this.getContext(),mSX,mSY, bgTile);
         startGame();
         noiseMaker.bgMusic(this.getContext(), bgMusicSwitch);
         memFontMargin = mSX / 100 * 2;
         memFontSize = mSX / 100 * 6;
-        spawnInitial();
+        entities.spawnInitial();
         Log.d("debugging", "___STARTAR NYTT SPEL___");
         Log.d("debugging", "entities: " + entities);
-    }
-    private int getAndSetEscapeTunnel(){
-      spawnEscapeTunnelOnSide = spawnEscapeTunnelOnSide == 0 ? 1 : 0;
-      return spawnEscapeTunnelOnSide;
-}
-    private int[] newRandomPosition(int abX, int abY, int baX, int baY) {
-        int[] position = new int[2];
-        int mSXL = abX; // justera så inte figur kan gå utanför skärm typ
-        int mSYL = abY;
-        int highLimitX = baX;
-        int highLimitY = baY;
-        int mSXH = mSX - highLimitX;
-        int mSYH = mSY - highLimitY;
-        position[0] = (int) (mSXL + (Math.random() * (mSXH - mSXL)));
-        position[1] = (int) (mSYL + (Math.random() * (mSYH - mSYL)));
-        return position;
-    }
-    private void spawnInitial() {
-        memCharacter = new playableCharacter(this.getContext(), mSX, mSY, new int[]{mSX / 2, 0});
-        entities.add(memCharacter);
-        spawnCorners();
-        spawnEnemy();
-        spawnPassage(0);
-        spawnPassage(1);
-        spawnMynts(antalPengar);
-        spawnBarrels(antalTunnor);
-        spawnEscape();
-    }
-    private void spawnCorners(){
-        for (int i = 0; i < 4; i++) {
-            cornerFigure corner = new cornerFigure(this.getContext(), mSX, mSY, new int[]{0, 0}, i);
-            entities.add(corner);
-        }
-    }
-    private void spawnNewRoom(int[] placement){
-        //if (memCharacter != null){}
-        if (!entities.contains(memCharacter)){
-            entities.add(memCharacter);
-        }
-        memCharacter.setObjectPosition(placement);//new playableCharacter(this.getContext(), mSX, mSY, placement);
-        spawnCorners();
-        spawnPassage(0);
-        spawnPassage(1);
-        spawnMynts((int) (Math.random() * 5)+5);
-        spawnBarrels((int) (Math.random() * 10)+5);
-        spawnEnemy();
-        spawnEscape();
-    }
-    private void spawnEscape(){
-        entities.add(new escapeTunnel(this.getContext(),mSX,mSY,new int[]{0,0},getAndSetEscapeTunnel()));
-        //antingen 0 (vänster) eller 1 (höger)
-    }
-    private void spawnEnemy(){
-        entity temp = new NPC(this.getContext(), mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4));
-        entities.add(temp);
-    }
-    private void deSpawnEverything(){
-        entities.clear();
-        entities.add(memCharacter);
-    }
-    private void spawnPassage(int i){
-        entities.add(new passageWay(this.getContext(),mSX,mSY,new int[]{mSX/3,0},i));
-        entities.add(new passageWay(this.getContext(),mSX,mSY,new int[]{mSX/3,0},i));
-
-    }
-    private void spawnMynts(int antalPengar) {
-        for (int i = 0; i < antalPengar*2; i++) {
-            entities.add(new myntObjekt(this.getContext(), mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4)));
-
-        }
-    }
-    private void spawnBarrels(int antalTunnor) {
-        for (int i = 0; i < antalTunnor; i++) {
-            entities.add(new barrel(this.getContext(), mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4)));
-        }
-
-    }
-    protected void setScore(int passVar) {
-        clickScore += passVar;
     }
 
     private void startGame() {
@@ -169,27 +86,30 @@ public class gameHandler extends SurfaceView implements Runnable {
                 long timeFrameStart = System.currentTimeMillis();
 
                 if (!game_pause) {
-                    //handleFrameSetup();
+                    if (entities.hasEnteredEscape) {
+                    pauseGame();
+                    }
+                    if (entities.checkHealth()){
+                        pauseGame();
+                        playerDead = true;
+                    }
                     handleFrameSetup();
-                    checkHealth();
                     long timePerFrame = System.currentTimeMillis() - timeFrameStart;
                     if (timePerFrame > 0) {
                         framesPerSecond = 1000 / timePerFrame;
                     }
                 } else{
                     paintBlack();
-                    if (enteredEscape) {
+                    if (entities.hasEnteredEscape) {
                         if (!deSpawnOnlyOnce) {
                             transitionTimer = System.currentTimeMillis();
-                            deSpawnEverything();
+                            entities.deSpawnEverything();
                             deSpawnOnlyOnce = true;
                         }
                         newTransitionAnimationScreen(System.currentTimeMillis());
 
                     }else{
                         if (playerDead) {
-
-                            //
                             //game_pause = true;
                             // game_running = false;
                             if ((System.currentTimeMillis()-transitionTimer) > 5000){
@@ -223,13 +143,13 @@ public class gameHandler extends SurfaceView implements Runnable {
         // när gubben sprungit till andra sidan skärmen
         // new int[]{savedPositionBeforeExit,savedPositionBeforeExit[1]
         if (timeElapsed - transitionTimer > 400){//(memCharacter.objectPosition[0] == startRunningFrom){ //mSX-runner.objWidth-2
-            enteredEscape = false;
+            entities.hasEnteredEscape = false;
             //deSpawnEverything();
             game_pause = false;
             deSpawnOnlyOnce = false;
             //spelet är igång igen
             //Stoppa in nya objekt att interagera med
-            spawnNewRoom(savedPositionBeforeExit);//ska vara inverterad X-position
+            entities.spawnNewRoom(savedPositionBeforeExit);//ska vara inverterad X-position
         }
     }
     public void stopBgMusicEngine() {
@@ -263,38 +183,27 @@ public class gameHandler extends SurfaceView implements Runnable {
         //stopBgMusicEngine();
         noiseMaker = null;
         entities = null;
-        objectsToDraw = null;
         memPaint = null;
         //threadGameMem = null;
     }
-    private void checkHealth(){
-        if (entities.contains(memCharacter) && memCharacter.health < 0){
-            //deSpawnEverything();
-            //entities.remove(memCharacter);
-            playerDead = true;
-            pauseGame();
-        }
-    }
+
     public void pauseGame() {
         game_pause = true;
     }
 
     protected void handleFrameSetup() {
         if (setSpawnAnotherEnemy) {
-            spawnEnemy();
+            entities.spawnEnemy();
             setSpawnAnotherEnemy = false;
         }
         if (mSurface.getSurface().isValid()) {
             gameCanvas = mSurface.lockCanvas();
            // if (!game_pause){}    else{}
-                checkFigureMovement();
-                drawTheseObjectsAndThings();
-                checkCollisions();
+                entities.checkFigureMovement();
+                entities.drawTheseObjectsAndThings(gameCanvas);
+                entities.checkCollisions(noiseMaker, savedPositionBeforeExit, enteredEscape);
                 writeText();
 
-                if (playerDead){
-                    deathMessage();
-                }
 
               // else{ }
                   //  gameCanvas.drawColor(Color.BLACK);
@@ -304,135 +213,10 @@ public class gameHandler extends SurfaceView implements Runnable {
         }
     }
 
-    private void checkFigureMovement() {
-        memCharacter.movement();
-        for (entity en : entities){
-            if (en instanceof NPC){
-                ((NPC) en).movement(memCharacter.getObjectPosition());
-            }
-        }
-    }
-
-    private void checkCollisions() {
-        //RectF pCRectF = memCharacter.getObjectCBox();
-        checkOutOfMapBoundaries(memCharacter.getObjectCBox());
-        // Iterera över och hantera både rörliga och orörliga entiteter
-        for (entity en : entities) {
-            //en.draw(gameCanvas);
-            RectF a = en.getObjectCBox();
-            if (a == null && !(en == null)) {
-            } else {
-                if (RectF.intersects(memCharacter.getObjectCBox(),a)){// (memCharacter.getObjectCBox().intersects(a.left, a.top, a.right, a.bottom)) {
-
-                    if (en instanceof cornerFigure) {
-                        //immovableEntity immovableObj = (immovableEntity) en;// om man behöver specifika funktioner genom heritance
-                        memCharacter.onCollision(en.getObjectCBox());
-                        noiseMaker.playImmovable();
-                    }else if (en instanceof barrel){
-                        //RectF pC = memCharacter.getObjectCBox();
-                        if (memCharacter.getObjectCBox().bottom > en.getObjectCBox().bottom-en.objHeight*0.33){
-                            memCharacter.onCollision(en.getObjectCBox());
-                            noiseMaker.playImmovable();
-                        }
-                    }
-                    else if (en instanceof myntObjekt) {
-                        noiseMaker.playPling();
-                        setScore(1);
-                        if (clickScore % 3 == 0){
-                            setSpawnAnotherEnemy = true;
-                        }
-                        ((myntObjekt) en).remove();
-                    }
-                    else if (en instanceof NPC) {
-                        memCharacter.onCollision(en.getObjectCBox());
-                        memCharacter.damage(1);
-                        //Om NPC kolliderar med annan npc... hur blir detta..
-                        // if (en.intersects(en.getObjectCBox(),))
-                    }
-                    else if (en instanceof escapeTunnel){
-                        //immovableEntity immovableObj = (immovableEntity) en;
-                        boolean underLimit = memCharacter.objectPosition[1] > a.bottom;
-                        //memCharacter.objectPosition[1] > immovableObj.objectPosition[1]+immovableObj.objHeight;
-                        boolean overLimit = memCharacter.objectPosition[1] > a.top;//immovableObj.objectPosition[1];
-                        Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
-                        if (!underLimit && overLimit){
-                            //karaktären går in i tunneln
-                            savedPositionBeforeExit = memCharacter.objectPosition;
-                            pauseGame();
-                            enteredEscape = true;
-                            //Svart skärm - gubben springer åt motsatt håll
-                        }else {
-                            memCharacter.onCollision(a);
-                        }
-                    }
-                }
-            }
-        }
-        //Log.d("debugging", "tog stopp");
-    }
-
-    private void checkOutOfMapBoundaries(RectF player) {
-        if (player.right >= mSX) {
-            memCharacter.updateObjectPosition(-10,0);
-            //memCharacter.setNewObjectPosition(passPos);
-            //return true;
-            //karaktären är till höger på kartan
-        }
-        if (player.left <= 1) {
-            memCharacter.updateObjectPosition(10,0);
-            //return true;
-            //karaktären är till vänster på kartan
-        }
-        if (player.bottom >= mSY - 1) {
-            memCharacter.updateObjectPosition(0,-10);
-            //return true;
-            //karaktären är i nere på kartan
-        }
-        if (player.top <= 1) {
-            memCharacter.updateObjectPosition(0,10);
-            //return true;
-        }
-        //return false;
-    }
-
-    public void drawTheseObjectsAndThings() {
-        gameCanvas.drawColor(Color.argb(255, 112, 84, 72));
-        objectsToDraw.add(new DrawObject(bgTile, new RectF(0, 0, mSX, mSY)));
-        for (entity ent : entities) {
-            RectF placeAt = ent.getObjectCBox();
-            Bitmap figure = ent.getCurrentStateBitmap();
-            if (figure == null || placeAt == null) {
-                Log.d("debugging", "följande entity.bitmap är null: " + ent);
-            } else {
-                objectsToDraw.add(new DrawObject(figure, placeAt));
-            }
-        }
-        drawBatchedObjects();
-    }
-
-
-    private void drawBatchedObjects() {
-        // Itererar genom ArrayList med objekt att rita
-        for (DrawObject drawObject : objectsToDraw) {
-            gameCanvas.drawBitmap(drawObject.bitmap, null, drawObject.rect, null);
-        }
-        // Rensa listan efter att alla objekt är ritade
-        objectsToDraw.clear();
-    }
-
-    private static class DrawObject {
-        Bitmap bitmap;
-        RectF rect;
-        DrawObject(Bitmap bitmap, RectF rect) {
-            this.bitmap = bitmap;
-            this.rect = rect;
-        }
-    }
-
     protected void deathMessage(){
-        String wasItEnough = clickScore > 1000 ? "till" : "inte till";
+        String wasItEnough = entities.guldpengar > 1000 ? "till" : "inte till";
         String str = "Modige Morgan samlade";
-        String str1 = "totalt ihop " + clickScore + " mynt";
+        String str1 = "totalt ihop " + entities.guldpengar + " mynt";
         String str2 = "Det räckte " + wasItEnough;
         String str3 =  "sjukhuskostnaderna";
         float rectH = (memFontMargin+memFontSize)*2;
@@ -457,7 +241,7 @@ public class gameHandler extends SurfaceView implements Runnable {
         gameCanvas.drawRect(0, mSY - rectHeight, mSX, mSY + 75, memPaint);
         memPaint.setColor(Color.WHITE);
         memPaint.setTextSize(memFontSize); //" FPS: " + framesPerSecond +
-        String writeString = ("Guldpengar: " + clickScore + " Hälsa: " + memCharacter.health);
+        String writeString = ("Guldpengar: " + entities.guldpengar + " Hälsa: " + entities.memCharacter.health);
         float textWidth = memPaint.measureText(writeString);
         float xPosition = (mSX - textWidth) / 2; // Centrera texten horisontellt
         float yPosition = mSY - rectHeight / 2 + memFontSize / 3; // Centrera texten vertikalt
@@ -474,7 +258,7 @@ public class gameHandler extends SurfaceView implements Runnable {
             case MotionEvent.ACTION_DOWN:
                 int tX = (int) motionEvent.getX();
                 int tY = (int) motionEvent.getY();
-                memCharacter.setNewObjectPosition(new int[]{tX, tY});
+                entities.memCharacter.setNewObjectPosition(new int[]{tX, tY});
                 downPressed = true;
                 break;
 
@@ -483,7 +267,7 @@ public class gameHandler extends SurfaceView implements Runnable {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                memCharacter.setNewObjectPosition(new int[]{(int) motionEvent.getX(), (int) motionEvent.getY()});
+                entities.memCharacter.setNewObjectPosition(new int[]{(int) motionEvent.getX(), (int) motionEvent.getY()});
                 break;
         }//}
         return true;
