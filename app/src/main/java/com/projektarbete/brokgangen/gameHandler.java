@@ -71,7 +71,6 @@ public class gameHandler extends SurfaceView implements Runnable {
     private void startGame() {
         resume();
     }
-
     protected void resume() {
         game_running = true;
         game_pause = false;
@@ -84,15 +83,16 @@ public class gameHandler extends SurfaceView implements Runnable {
     public void run() {
             while (game_running) {
                 long timeFrameStart = System.currentTimeMillis();
-
                 if (!game_pause) {
-                    if (entities.hasEnteredEscape) {
-                    pauseGame();
+                    playerDead = entities.checkHealth();
+                    if (entities.hasEnteredEscape || playerDead) {
+                        pauseGame();
                     }
-                    if (entities.checkHealth()){
+
+                  /*  if (entities.checkHealth()){
                         pauseGame();
                         playerDead = true;
-                    }
+                    }*/
                     handleFrameSetup();
                     long timePerFrame = System.currentTimeMillis() - timeFrameStart;
                     if (timePerFrame > 0) {
@@ -192,9 +192,9 @@ public class gameHandler extends SurfaceView implements Runnable {
     }
 
     protected void handleFrameSetup() {
-        if (setSpawnAnotherEnemy) {
+        if (entities.setSpawnAnotherEnemy) {
             entities.spawnEnemy();
-            setSpawnAnotherEnemy = false;
+            entities.setSpawnAnotherEnemy = false;
         }
         if (mSurface.getSurface().isValid()) {
             gameCanvas = mSurface.lockCanvas();
@@ -203,12 +203,6 @@ public class gameHandler extends SurfaceView implements Runnable {
                 entities.drawTheseObjectsAndThings(gameCanvas);
                 entities.checkCollisions(noiseMaker, savedPositionBeforeExit, enteredEscape);
                 writeText();
-
-
-              // else{ }
-                  //  gameCanvas.drawColor(Color.BLACK);
-
-
             mSurface.unlockCanvasAndPost(gameCanvas);
         }
     }

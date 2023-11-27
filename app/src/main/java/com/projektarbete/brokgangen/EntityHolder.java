@@ -43,8 +43,8 @@ public class EntityHolder extends Activity {
         for (entity en : entities) {
             //en.draw(gameCanvas);
             RectF a = en.getObjectCBox();
-            if (a == null && !(en == null)) {
-            } else {
+            if (a != null) {
+            //} else {
                 if (RectF.intersects(memCharacter.getObjectCBox(),a)){// (memCharacter.getObjectCBox().intersects(a.left, a.top, a.right, a.bottom)) {
 
                     if (en instanceof cornerFigure) {
@@ -69,6 +69,7 @@ public class EntityHolder extends Activity {
                     else if (en instanceof NPC) {
                         memCharacter.onCollision(en.getObjectCBox());
                         memCharacter.damage(1);
+                        //noiseMaker.playDamaged();
                         //Om NPC kolliderar med annan npc... hur blir detta..
                         // if (en.intersects(en.getObjectCBox(),))
                     }
