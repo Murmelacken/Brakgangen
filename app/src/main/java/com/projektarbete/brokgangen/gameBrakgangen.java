@@ -2,6 +2,7 @@ package com.projektarbete.brokgangen;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.WindowInsets;
@@ -10,6 +11,8 @@ import android.view.WindowManager;
 
 public class gameBrakgangen extends AppCompatActivity {
     gameHandler runningGame;
+    public Intent intent_mainmenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,14 +46,31 @@ public class gameBrakgangen extends AppCompatActivity {
         if (runningGame.noiseMaker != null && runningGame.bgMusicSwitch){
             runningGame.stopBgMusicEngine();
         }
+        intent_mainmenu = new Intent(this, MainMenu.class);
+        startActivity(intent_mainmenu);
         runningGame.pauseGame();
     }
     @Override
     public void onStop() {
         super.onStop();
         //if (runningGame.doStop){finish();runningGame = null;}
-       // runningGame.cancelCanvas();
-        runningGame.stopGame();
+        // runningGame.cancelCanvas();
+        //runningGame.stopGame();
+        if (runningGame != null){
+            runningGame = null;
+        }
+        finish();
+        intent_mainmenu = new Intent(this, MainMenu.class);
+        startActivity(intent_mainmenu);
+
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        intent_mainmenu = new Intent(this, MainMenu.class);
+        startActivity(intent_mainmenu);
+        finish();
     }
 
 }

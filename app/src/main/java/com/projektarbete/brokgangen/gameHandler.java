@@ -5,25 +5,29 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.Surface;
+import android.view.SurfaceControl;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class gameHandler extends SurfaceView implements Runnable {
     private boolean game_running = false;
     private boolean game_pause = true;
     private Thread threadGameMem = null;
-    private final SurfaceHolder mSurface;
+    private SurfaceHolder mSurface;
     private Canvas gameCanvas;
     Paint memPaint;
+    NoiseMaker noiseMaker;
+    Bitmap bgTile;
+    protected playableCharacter memCharacter;
     protected final int mSX;
     protected final int mSY;
     private int memFontSize;
@@ -33,11 +37,8 @@ public class gameHandler extends SurfaceView implements Runnable {
     private boolean drawOnceBoolean = false;
     private int clickScore;
     protected boolean downPressed = false;
-    protected playableCharacter memCharacter;
     public static int antalPengar = 10;
     public static int antalTunnor = 15;
-    NoiseMaker noiseMaker;
-    Bitmap bgTile;
     private List<DrawObject> objectsToDraw = new ArrayList<>();
     public ArrayList<entity> entities = new ArrayList<>();
     private int[] savedPositionBeforeExit;
@@ -164,66 +165,71 @@ public class gameHandler extends SurfaceView implements Runnable {
     private long transitionTimer;
     @Override
     public void run() {
-        while (game_running) {
-            long timeFrameStart = System.currentTimeMillis();
-            if (startNewGame && playerDead){
-                stopGame();
-                doStop = true;
-            }
-            if (!game_pause) {
-                if (downPressed) {
-                    //something
-                }
-                handleFrameSetup();
-            }else{
-                if (enteredEscape){
-                    if (!deSpawnOnlyOnce){
-                        transitionTimer = System.currentTimeMillis();
-                        deSpawnEverything();
-                        deSpawnOnlyOnce = true;
+            while (game_running) {
+                long timeFrameStart = System.currentTimeMillis();
+
+                if (!game_pause) {
+                    //handleFrameSetup();
+                    handleFrameSetup();
+                    checkHealth();
+                    long timePerFrame = System.currentTimeMillis() - timeFrameStart;
+                    if (timePerFrame > 0) {
+                        framesPerSecond = 1000 / timePerFrame;
                     }
-                    newTransitionAnimationScreen(System.currentTimeMillis());
-                }
+                } else{
+                    paintBlack();
+                    if (enteredEscape) {
+                        if (!deSpawnOnlyOnce) {
+                            transitionTimer = System.currentTimeMillis();
+                            deSpawnEverything();
+                            deSpawnOnlyOnce = true;
+                        }
+                        newTransitionAnimationScreen(System.currentTimeMillis());
+
+                    }else{
+                        if (playerDead) {
+
+                            //
+                            //game_pause = true;
+                            // game_running = false;
+                            if ((System.currentTimeMillis()-transitionTimer) > 5000){
+                                Log.d("debugging", "transitiontimer:" + (System.currentTimeMillis()-transitionTimer));
+                                stopGame();
+                            }
+                        }else{
+                            transitionTimer = System.currentTimeMillis();
+                        }
+                }}
+
+
             }
-            long timePerFrame = System.currentTimeMillis() - timeFrameStart;
-            if (timePerFrame > 0) {
-                framesPerSecond = 1000 / timePerFrame;
-            }
-        }
+
     }
-private void setCharacterRun(){
-        int[] goTo = savedPositionBeforeExit;
-        memCharacter.setObjectPosition(savedPositionBeforeExit);
-    if (savedPositionBeforeExit[0] > mSX/2){ //om höger sida
-        goTo[0] = memCharacter.objWidth+20;
-    }else{
-        goTo[0] = mSX-memCharacter.objWidth-20;
-    }
-    startRunningFrom = savedPositionBeforeExit[0];
-    memCharacter.setNewObjectPosition(goTo);
-}
-    private void newTransitionAnimationScreen(long timeElapsed){
-       // memCharacter.movement();
-        if (mSurface.getSurface().isValid() && game_pause) {
+
+    private void paintBlack(){
+        if (mSurface.getSurface().isValid() && game_running) {
             gameCanvas = mSurface.lockCanvas();
             gameCanvas.drawColor(Color.BLACK);
-            //memCharacter.getCurrentStateBitmap();
+            if (playerDead){
+                deathMessage();
+                game_pause = true;
+            }
             mSurface.unlockCanvasAndPost(gameCanvas);
-            //Log.d("animation","gubben runner:  " + runner);
-            //Log.d("animation","lite värden: " + Arrays.toString(savedPositionBeforeExit));
         }
-
+    }
+    private void newTransitionAnimationScreen(long timeElapsed){
+       // memCharacter.movement();
+       // paintBlack();
         // när gubben sprungit till andra sidan skärmen
         // new int[]{savedPositionBeforeExit,savedPositionBeforeExit[1]
         if (timeElapsed - transitionTimer > 400){//(memCharacter.objectPosition[0] == startRunningFrom){ //mSX-runner.objWidth-2
             enteredEscape = false;
-            deSpawnEverything();
+            //deSpawnEverything();
             game_pause = false;
             deSpawnOnlyOnce = false;
             //spelet är igång igen
             //Stoppa in nya objekt att interagera med
             spawnNewRoom(savedPositionBeforeExit);//ska vara inverterad X-position
-
         }
     }
     public void stopBgMusicEngine() {
@@ -234,20 +240,39 @@ private void setCharacterRun(){
         Log.d("debugging", "försöker stänga av ");
         game_pause = true;
         game_running = false;
-        try {
-            threadGameMem.join();
-        } catch (InterruptedException e) {
-            Log.e("Error", "Game Thread joined");
-        }
+        if (threadGameMem.isAlive())  {//
+            try {
+                //if (threadGameMem.isInterrupted()){}
+                //Thread.currentThread().interrupt();
+                Log.d("debugging", "threadGameMem.join ");
+                threadGameMem.join(5000);
+                threadGameMem.stop();
+                Log.d("debugging", "efter join");
+            } catch (InterruptedException e) {
+                Log.e("Error", "Game Thread unable to join");
+                e.printStackTrace();
+            }
 
+        }
+    }
+    private void nullifyAll(){
+        gameCanvas = null;
+        mSurface = null;
+
+        //deSpawnEverything();
+        //stopBgMusicEngine();
+        noiseMaker = null;
+        entities = null;
+        objectsToDraw = null;
+        memPaint = null;
+        //threadGameMem = null;
     }
     private void checkHealth(){
-        if (memCharacter.health < 0){
-            deSpawnEverything();
-            entities.remove(memCharacter);
+        if (entities.contains(memCharacter) && memCharacter.health < 0){
+            //deSpawnEverything();
+            //entities.remove(memCharacter);
             playerDead = true;
-            writeMessage();
-            //pauseGame();
+            pauseGame();
         }
     }
     public void pauseGame() {
@@ -255,17 +280,26 @@ private void setCharacterRun(){
     }
 
     protected void handleFrameSetup() {
-        if (mSurface.getSurface().isValid() && !game_pause) {
+        if (setSpawnAnotherEnemy) {
+            spawnEnemy();
+            setSpawnAnotherEnemy = false;
+        }
+        if (mSurface.getSurface().isValid()) {
             gameCanvas = mSurface.lockCanvas();
-            checkFigureMovement();
-            drawTheseObjectsAndThings();
-            checkCollisions();
-            checkHealth();
-            writeText();
-            if (setSpawnAnotherEnemy){
-                spawnEnemy();
-                setSpawnAnotherEnemy = false;
-            }
+           // if (!game_pause){}    else{}
+                checkFigureMovement();
+                drawTheseObjectsAndThings();
+                checkCollisions();
+                writeText();
+
+                if (playerDead){
+                    deathMessage();
+                }
+
+              // else{ }
+                  //  gameCanvas.drawColor(Color.BLACK);
+
+
             mSurface.unlockCanvasAndPost(gameCanvas);
         }
     }
@@ -324,11 +358,9 @@ private void setCharacterRun(){
                         if (!underLimit && overLimit){
                             //karaktären går in i tunneln
                             savedPositionBeforeExit = memCharacter.objectPosition;
-                            game_pause = true;
+                            pauseGame();
                             enteredEscape = true;
-                            //deSpawnEverything();
                             //Svart skärm - gubben springer åt motsatt håll
-                            //initalSpawn();
                         }else {
                             memCharacter.onCollision(a);
                         }
@@ -397,7 +429,7 @@ private void setCharacterRun(){
         }
     }
 
-    protected void writeMessage(){
+    protected void deathMessage(){
         String wasItEnough = clickScore > 1000 ? "till" : "inte till";
         String str = "Modige Morgan samlade";
         String str1 = "totalt ihop " + clickScore + " mynt";
@@ -416,7 +448,6 @@ private void setCharacterRun(){
         gameCanvas.drawText(str1, xPos, yPos+memFontSize+memFontMargin, memPaint);
         gameCanvas.drawText(str2, xPos, yPos+2*(memFontSize+memFontMargin), memPaint);
         gameCanvas.drawText(str3, xPos, yPos+3*(memFontSize+memFontMargin), memPaint);
-
     }
     protected void writeText() {
         //
@@ -441,11 +472,6 @@ private void setCharacterRun(){
         //if (memCharacter != null) {
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (game_pause){
-
-                    startNewGame = true;
-
-                }
                 int tX = (int) motionEvent.getX();
                 int tY = (int) motionEvent.getY();
                 memCharacter.setNewObjectPosition(new int[]{tX, tY});
