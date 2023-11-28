@@ -88,11 +88,6 @@ public class gameHandler extends SurfaceView implements Runnable {
                     if (entities.hasEnteredEscape || playerDead) {
                         pauseGame();
                     }
-
-                  /*  if (entities.checkHealth()){
-                        pauseGame();
-                        playerDead = true;
-                    }*/
                     handleFrameSetup();
                     long timePerFrame = System.currentTimeMillis() - timeFrameStart;
                     if (timePerFrame > 0) {

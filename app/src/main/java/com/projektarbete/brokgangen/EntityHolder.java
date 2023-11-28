@@ -136,7 +136,7 @@ public class EntityHolder extends Activity {
                                 } else if (b instanceof cornerFigure){
                                     if (playerCheck){noiseMaker.playImmovable();}
                                     //immovableEntity immovableObj = (immovableEntity) en;// om man behöver specifika funktioner genom heritance
-                                    a.onCollision(bBox);
+                                        a.onCollision(bBox);
                             }else if (b instanceof escapeTunnel){
                                 if (playerCheck){
                                     //immovableEntity immovableObj = (immovableEntity) en;
