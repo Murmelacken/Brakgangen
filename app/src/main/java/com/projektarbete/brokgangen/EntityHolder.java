@@ -13,6 +13,8 @@ import java.util.List;
 
 public class EntityHolder extends Activity {
     public ArrayList<entity> entities = new ArrayList<>();
+    public ArrayList<movableEntity> enemies = new ArrayList<>();
+    public ArrayList<immovableEntity> immovables = new ArrayList<>();
     public playableCharacter memCharacter;
     public static int antalPengar = 10;
     public static int antalTunnor = 15;
@@ -35,7 +37,9 @@ public class EntityHolder extends Activity {
         return entities.contains(memCharacter) && memCharacter.health < 0;
     }
 
-    void checkCollisions(NoiseMaker noiseMaker, int[] savedPosition, boolean enteredEscape) {
+    /*void checkCollisions(NoiseMaker noiseMaker, int[] savedPosition, boolean enteredEscape) {
+        ArrayList<NPC> enemies = new ArrayList<>();
+
         //RectF pCRectF = memCharacter.getObjectCBox();
         checkOutOfMapBoundaries(memCharacter.getObjectCBox());
         // Iterera över och hantera både rörliga och orörliga entiteter
@@ -95,6 +99,77 @@ public class EntityHolder extends Activity {
             }
         }
         //Log.d("debugging", "tog stopp");
+    }*/
+    public void newCollisionCheck(NoiseMaker noiseMaker){
+        checkOutOfMapBoundaries(memCharacter.getObjectCBox());
+        for (int i = 0; i < entities.size(); i++){
+            entity a = entities.get(i);
+            boolean playerCheck =  a instanceof playableCharacter;
+            RectF aBox = a.getObjectCBox();
+            if (!(a instanceof immovableEntity)){
+                for (int j = i+1; j < entities.size(); j++){
+                    entity b = entities.get(j);
+                    RectF bBox = b.getObjectCBox();
+                    //om dessa ting kolliderar...
+                    if (RectF.intersects(aBox, bBox)) {
+                        //om kollision av a sker mot orörligt ting...
+                        if (b instanceof immovableEntity){
+                            // soundtrig innebär spelarkaraktärens kollision
+                            // då gör vi ljud
+                            if (b instanceof barrel) {
+                                //sätter rektangeln ned mot botten av tunnnan
+                                if (aBox.bottom > bBox.bottom - b.objHeight * 0.33) {
+                                    if (playerCheck){noiseMaker.playImmovable();}
+                                    a.onCollision(bBox);
+                                }
+                                //
+                                }else if (b instanceof myntObjekt){
+                                    guldpengar+=1;
+                                    if (playerCheck){noiseMaker.playPling();}
+                                    if (guldpengar % 3 == 0){
+                                        setSpawnAnotherEnemy = true;
+                                    }
+                                    ((myntObjekt) b).remove();
+                                } else if (b instanceof cornerFigure){
+                                    if (playerCheck){noiseMaker.playImmovable();}
+                                    //immovableEntity immovableObj = (immovableEntity) en;// om man behöver specifika funktioner genom heritance
+                                    a.onCollision(bBox);
+                            }else if (b instanceof escapeTunnel){
+                                if (playerCheck){
+                                    //immovableEntity immovableObj = (immovableEntity) en;
+                                    boolean underLimit = memCharacter.objectPosition[1] < aBox.bottom;
+                                    //memCharacter.objectPosition[1] > immovableObj.objectPosition[1]+immovableObj.objHeight;
+                                    boolean overLimit = memCharacter.objectPosition[1] > aBox.top;//immovableObj.objectPosition[1];
+                                    Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
+
+                                    if (underLimit && !overLimit){
+                                        //karaktären går in i tunneln
+                                       // Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
+                                        noiseMaker.playEscapeSound();
+                                        charPositionBefore = memCharacter.objectPosition;
+                                        //pauseGame();
+                                        hasEnteredEscape = true;
+                                        //enteredEscape = true;
+                                    }else {
+                                        a.onCollision(bBox);
+                                }
+                                }else {
+                                    a.onCollision(bBox);}
+                            }
+                        }
+                            //om kollision med rörligt ting
+                            else{
+                                //har bara lagt in fienden NPC än så länge
+                                if (b instanceof NPC){
+                                    if (playerCheck){noiseMaker.playHit();}
+                                    a.onCollision(bBox);
+
+                                }
+                            }
+                    }
+                }
+            }
+        }
     }
     private void checkOutOfMapBoundaries(RectF player) {
         if (player.right >= mSX) {

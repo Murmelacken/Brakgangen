@@ -13,8 +13,22 @@ import java.util.List;
 import java.util.Map;
 
 public class NoiseMaker {
-    protected int[] songIds = {R.raw.ljudblaug, R.raw.bakgrundsljud, R.raw.lost_game, R.raw.touch_sound, R.raw.treehit, R.raw.test_promenadljud};
-    private final String[] songNames = {"startLjud", "bgLjud","gameOver", "studs", "tree", "walk"};
+    protected int[] songIds = {R.raw.ljudblaug,
+            R.raw.bakgrundsljud,
+            R.raw.lost_game,
+            R.raw.touch_sound,
+            R.raw.treehit,
+            R.raw.test_promenadljud,
+            R.raw.playerhit,
+            R.raw.escapetunnel};
+    private final String[] songNames = {"startLjud",
+            "bgLjud",
+            "gameOver",
+            "studs",
+            "tree",
+            "walk",
+            "hit",
+            "escape"};
     private final Map<String, Integer> soundList = new HashMap<>();
     protected List<Integer> loadedSoundIds = new ArrayList<>();
     static MediaPlayer myMediaPlayer = null;
@@ -37,15 +51,18 @@ public NoiseMaker() {
         }
 
     }
-public void playImmovable(){
-    playSound("tree",0);
-}
+    public void playImmovable(){
+        playSound("tree",0);
+    }
+    public void playEscapeSound(){
+        playSound("escape",0);
+    }
     public void playSound(String findString, int repeat){
         Integer soundId = soundList.get(findString);
         if (soundId > 0 ){
             mSP.play(soundId, 1, 1, 0, repeat, 1);
 
-        }}
+    }}
     public void bgMusic(Context context, boolean bgMusicSwitch){
 
         if (bgMusicSwitch){
@@ -64,7 +81,9 @@ public void playImmovable(){
         }
 
     }
-
+public void playHit(){
+    playSound("hit",0);
+}
     protected void loadAllSounds(Context context, int[] rawIds) {
         int i = 0;
         for (int element : rawIds) {

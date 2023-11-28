@@ -201,8 +201,10 @@ public class gameHandler extends SurfaceView implements Runnable {
            // if (!game_pause){}    else{}
                 entities.checkFigureMovement();
                 entities.drawTheseObjectsAndThings(gameCanvas);
-                entities.checkCollisions(noiseMaker, savedPositionBeforeExit, enteredEscape);
-                writeText();
+                //entities.checkCollisions(noiseMaker, savedPositionBeforeExit, enteredEscape);
+                entities.newCollisionCheck(noiseMaker);
+                //entities.checkOutOfMapBoundaries(entities.memCharacter.objectCBox);
+            writeText();
             mSurface.unlockCanvasAndPost(gameCanvas);
         }
     }
