@@ -164,7 +164,9 @@ public class EntityHolder extends Activity {
                             else{
                                 //har bara lagt in fienden NPC än så länge
                                 if (b instanceof NPC){
-                                    if (playerCheck){noiseMaker.playHit();}
+                                    if (playerCheck){noiseMaker.playHit();
+                                    }
+
                                     a.onCollision(bBox);
 
                                 }
