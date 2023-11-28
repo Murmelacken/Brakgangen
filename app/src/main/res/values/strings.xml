@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Bråkgången</string>
+    <string name="gameX">Bråkgången</string>
+    <string name="aboutGame">About the Game</string>
+    <string name="rules">Here are the rules: </string>
+    <string name="btn_music">Music ON/OFF</string>
+    <string name="btn_play">Play</string>
+    <string name="aboutgame1">Om spelet Bråkgången</string>
+    <string name="aboutgame2">\n
+        Modige Morgan bor i ett nyliberalt land \n och måste samla in
+        guldmynt för att\n  kunna betala vård för en sjuk och pensionerad släkting \n
+        (dock ej sjukpensionerad) \n
+        Insamla mynt genom att föra modige Morgan åt rätt håll\n
+        Vem kan rädda modige Morgans släkting?\n \n
+        Gå mellan kartor genom att ta tunnlarna \n
+        Akta modige Morgan från eventuella snurriga Svartalver \n \n
+        Ty det är deras guldmynt som modige Morgan norpar \n
+
+        Alla ljud samt figurer är FOSS</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

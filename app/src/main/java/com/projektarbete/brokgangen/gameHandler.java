@@ -22,6 +22,7 @@ import java.util.List;
 public class gameHandler extends SurfaceView implements Runnable {
     private boolean game_running = false;
     private boolean game_pause = true;
+    public boolean STOPTHEGAME = false;
     private Thread threadGameMem = null;
     private SurfaceHolder mSurface;
     private Canvas gameCanvas;
@@ -61,8 +62,8 @@ public class gameHandler extends SurfaceView implements Runnable {
         entities = new EntityHolder(this.getContext(),mSX,mSY, bgTile);
         startGame();
         noiseMaker.bgMusic(this.getContext(), bgMusicSwitch);
-        memFontMargin = mSX / 100 * 2;
-        memFontSize = mSX / 100 * 6;
+        memFontMargin = mSX / 100 * 2; //fontmargin: 2%
+        memFontSize = mSX / 100 * 6;   //fontSize:   6%
         entities.spawnInitial();
         Log.d("debugging", "___STARTAR NYTT SPEL___");
         Log.d("debugging", "entities: " + entities);
@@ -89,11 +90,7 @@ public class gameHandler extends SurfaceView implements Runnable {
                         pauseGame();
                     }
                     handleFrameSetup();
-                    long timePerFrame = System.currentTimeMillis() - timeFrameStart;
-                    if (timePerFrame > 0) {
-                        framesPerSecond = 1000 / timePerFrame;
-                    }
-                } else{
+                } else{ //om spelet är pausat
                     paintBlack();
                     if (entities.hasEnteredEscape) {
                         if (!deSpawnOnlyOnce) {
@@ -102,21 +99,26 @@ public class gameHandler extends SurfaceView implements Runnable {
                             deSpawnOnlyOnce = true;
                         }
                         newTransitionAnimationScreen(System.currentTimeMillis());
-
                     }else{
                         if (playerDead) {
                             //game_pause = true;
-                            // game_running = false;
+                            game_running = false;
                             if ((System.currentTimeMillis()-transitionTimer) > 5000){
+
                                 Log.d("debugging", "transitiontimer:" + (System.currentTimeMillis()-transitionTimer));
-                                stopGame();
+                                STOPTHEGAME = true;
+                                //stopGame();
                             }
                         }else{
                             transitionTimer = System.currentTimeMillis();
                         }
-                }}
+                    }
+                }
 
-
+                long timePerFrame = System.currentTimeMillis() - timeFrameStart;
+                if (timePerFrame > 0) {
+                    framesPerSecond = 1000 / timePerFrame;
+                }
             }
 
     }
@@ -153,33 +155,34 @@ public class gameHandler extends SurfaceView implements Runnable {
 
     protected void stopGame() {
         Log.d("debugging", "försöker stänga av ");
-        game_pause = true;
         game_running = false;
+        game_pause = true;
+        nullifyAll();
         if (threadGameMem.isAlive())  {//
-            try {
-                //if (threadGameMem.isInterrupted()){}
-                //Thread.currentThread().interrupt();
-                Log.d("debugging", "threadGameMem.join ");
-                threadGameMem.join(5000);
-                threadGameMem.stop();
-                Log.d("debugging", "efter join");
-            } catch (InterruptedException e) {
-                Log.e("Error", "Game Thread unable to join");
-                e.printStackTrace();
-            }
+                try {
+                    //if (threadGameMem.isInterrupted()){}
+                    //Thread.currentThread().interrupt();
+                    Log.d("debugging", "threadGameMem.join ");
+                    threadGameMem.join(5000);
+                    threadGameMem.interrupt();
+                    //threadGameMem.stop();
+                    Log.d("debugging", "efter join");
+                } catch (InterruptedException e) {
+                    Log.e("Error", "Game Thread unable to join");
+                    e.printStackTrace();
+                }
+
 
         }
     }
     private void nullifyAll(){
         gameCanvas = null;
         mSurface = null;
-
-        //deSpawnEverything();
-        //stopBgMusicEngine();
+        stopBgMusicEngine();
         noiseMaker = null;
         entities = null;
         memPaint = null;
-        //threadGameMem = null;
+        threadGameMem = null;
     }
 
     public void pauseGame() {
@@ -245,22 +248,24 @@ public class gameHandler extends SurfaceView implements Runnable {
         //downPressed = false;
         //if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == 1 && MotionEvent.ACTION_BUTTON_PRESS == 11){
         //if (memCharacter != null) {
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN:
-                int tX = (int) motionEvent.getX();
-                int tY = (int) motionEvent.getY();
-                entities.memCharacter.setNewObjectPosition(new int[]{tX, tY});
-                downPressed = true;
-                break;
+        if (game_running) {
+            switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_DOWN:
+                    int tX = (int) motionEvent.getX();
+                    int tY = (int) motionEvent.getY();
+                    entities.memCharacter.setNewObjectPosition(new int[]{tX, tY});
+                    downPressed = true;
+                    break;
 
-            case MotionEvent.ACTION_UP:
-                downPressed = false;
-                break;
+                case MotionEvent.ACTION_UP:
+                    downPressed = false;
+                    break;
 
-            case MotionEvent.ACTION_MOVE:
-                entities.memCharacter.setNewObjectPosition(new int[]{(int) motionEvent.getX(), (int) motionEvent.getY()});
-                break;
-        }//}
+                case MotionEvent.ACTION_MOVE:
+                    entities.memCharacter.setNewObjectPosition(new int[]{(int) motionEvent.getX(), (int) motionEvent.getY()});
+                    break;
+            }//}}
+    }
         return true;
     }
 }

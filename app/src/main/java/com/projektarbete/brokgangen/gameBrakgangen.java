@@ -33,6 +33,7 @@ public class gameBrakgangen extends AppCompatActivity {
             }
         }
         runningGame = runGame();
+
     }
     protected gameHandler runGame(){
         DisplayMetrics disp = getResources().getDisplayMetrics();
@@ -55,7 +56,7 @@ public class gameBrakgangen extends AppCompatActivity {
         super.onStop();
         //if (runningGame.doStop){finish();runningGame = null;}
         // runningGame.cancelCanvas();
-        //runningGame.stopGame();
+        runningGame.stopGame();
         if (runningGame != null){
             runningGame = null;
         }

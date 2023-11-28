@@ -36,73 +36,6 @@ public class EntityHolder extends Activity {
     public boolean checkHealth(){
         return entities.contains(memCharacter) && memCharacter.health < 0;
     }
-
-    /*void checkCollisions(NoiseMaker noiseMaker, int[] savedPosition, boolean enteredEscape) {
-        ArrayList<NPC> enemies = new ArrayList<>();
-
-        //RectF pCRectF = memCharacter.getObjectCBox();
-        checkOutOfMapBoundaries(memCharacter.getObjectCBox());
-        // Iterera över och hantera både rörliga och orörliga entiteter
-
-        for (entity en : entities) {
-            //en.draw(gameCanvas);
-            RectF a = en.getObjectCBox();
-            if (a != null) {
-            //} else {
-                if (RectF.intersects(memCharacter.getObjectCBox(),a)){// (memCharacter.getObjectCBox().intersects(a.left, a.top, a.right, a.bottom)) {
-
-                    if (en instanceof cornerFigure) {
-                        //immovableEntity immovableObj = (immovableEntity) en;// om man behöver specifika funktioner genom heritance
-                        memCharacter.onCollision(en.getObjectCBox());
-                        noiseMaker.playImmovable();
-                    }else if (en instanceof barrel){
-                        //RectF pC = memCharacter.getObjectCBox();
-                        if (memCharacter.getObjectCBox().bottom > en.getObjectCBox().bottom-en.objHeight*0.33){
-                            memCharacter.onCollision(en.getObjectCBox());
-                            noiseMaker.playImmovable();
-                        }
-                    }
-                    else if (en instanceof myntObjekt) {
-                        noiseMaker.playPling();
-                        guldpengar+=1;
-                        if (guldpengar % 3 == 0){
-                            setSpawnAnotherEnemy = true;
-                        }
-                        ((myntObjekt) en).remove();
-                    }
-                    else if (en instanceof NPC) {
-                        memCharacter.onCollision(en.getObjectCBox());
-                        memCharacter.damage(1);
-                        //noiseMaker.playDamaged();
-                        //Om NPC kolliderar med annan npc... hur blir detta..
-                        // if (en.intersects(en.getObjectCBox(),))
-                    }
-                    else if (en instanceof escapeTunnel){
-                        //immovableEntity immovableObj = (immovableEntity) en;
-                        boolean underLimit = memCharacter.objectPosition[1] > a.bottom;
-                        //memCharacter.objectPosition[1] > immovableObj.objectPosition[1]+immovableObj.objHeight;
-                        boolean overLimit = memCharacter.objectPosition[1] > a.top;//immovableObj.objectPosition[1];
-                        //
-                        if (!underLimit && overLimit){
-                            //karaktären går in i tunneln
-                            charPositionBefore = memCharacter.objectPosition;
-                            //pauseGame();
-                            hasEnteredEscape = true;
-                            //enteredEscape = true;
-                            //Svart skärm - gubben springer åt motsatt håll
-                            Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
-                        }else {
-                            memCharacter.onCollision(a);
-                        }
-                    }
-                }
-            }
-        }
-        //Log.d("debugging", "tog stopp");
-    }*/
-    private void damageTaken(int damage){
-        memCharacter.health -= damage;
-    }
     public void newCollisionCheck(NoiseMaker noiseMaker){
         checkOutOfMapBoundaries(memCharacter.getObjectCBox());
         for (int i = 0; i < entities.size(); i++){
@@ -165,6 +98,7 @@ public class EntityHolder extends Activity {
                                 //har bara lagt in fienden NPC än så länge
                                 if (b instanceof NPC){
                                     if (playerCheck){noiseMaker.playHit();
+                                        memCharacter.damage(1);
                                     }
 
                                     a.onCollision(bBox);
