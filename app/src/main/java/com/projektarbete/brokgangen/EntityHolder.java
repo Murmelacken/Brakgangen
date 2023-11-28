@@ -100,6 +100,9 @@ public class EntityHolder extends Activity {
         }
         //Log.d("debugging", "tog stopp");
     }*/
+    private void damageTaken(int damage){
+        memCharacter.health -= damage;
+    }
     public void newCollisionCheck(NoiseMaker noiseMaker){
         checkOutOfMapBoundaries(memCharacter.getObjectCBox());
         for (int i = 0; i < entities.size(); i++){
@@ -137,16 +140,16 @@ public class EntityHolder extends Activity {
                             }else if (b instanceof escapeTunnel){
                                 if (playerCheck){
                                     //immovableEntity immovableObj = (immovableEntity) en;
-                                    boolean underLimit = memCharacter.objectPosition[1] < aBox.bottom;
+                                    boolean underLimit = a.objectPosition[1] < aBox.bottom;
                                     //memCharacter.objectPosition[1] > immovableObj.objectPosition[1]+immovableObj.objHeight;
-                                    boolean overLimit = memCharacter.objectPosition[1] > aBox.top;//immovableObj.objectPosition[1];
+                                    boolean overLimit = a.objectPosition[1] > aBox.top;//immovableObj.objectPosition[1];
                                     Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
 
                                     if (underLimit && !overLimit){
                                         //karaktären går in i tunneln
                                        // Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
                                         noiseMaker.playEscapeSound();
-                                        charPositionBefore = memCharacter.objectPosition;
+                                        charPositionBefore = a.objectPosition;
                                         //pauseGame();
                                         hasEnteredEscape = true;
                                         //enteredEscape = true;
