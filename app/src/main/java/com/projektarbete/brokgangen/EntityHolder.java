@@ -80,7 +80,7 @@ public class EntityHolder extends Activity {
                                     boolean underLimit = a.objectPosition[1] < aBox.bottom;
                                     //memCharacter.objectPosition[1] > immovableObj.objectPosition[1]+immovableObj.objHeight;
                                     boolean overLimit = a.objectPosition[1] > aBox.top;//immovableObj.objectPosition[1];
-                                    Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
+                                    //Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
 
                                     if (underLimit && !overLimit){
                                         //karaktären går in i tunneln
@@ -220,17 +220,15 @@ public class EntityHolder extends Activity {
         }
     }
     public void spawnNewRoom(int[] placement){
-        //if (memCharacter != null){}
         if (!entities.contains(memCharacter) && memCharacter != null){
             spawnPlayer();
             memCharacter.setObjectPosition(placement);
         }
-        //new playableCharacter(this.getContext(), mSX, mSY, placement);
         spawnCorners();
         spawnPassage(0);
         spawnPassage(1);
-        spawnMynts((int) (Math.random() * 5)+5);
         spawnBarrels((int) (Math.random() * 10)+5);
+        spawnMynts((int) (Math.random() * 5)+5);
         spawnEnemy();
         spawnEscape();
     }
@@ -241,9 +239,6 @@ public class EntityHolder extends Activity {
     void spawnEnemy(){
         entity temp = new NPC(c, mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4));
         entities.add(temp);
-    }
-    public playableCharacter getMemChar(){
-        return memCharacter;
     }
     void deSpawnEverything(){
         entities.clear();
@@ -258,7 +253,6 @@ public class EntityHolder extends Activity {
 
     }
     public boolean checkIfContainsEntity(entity ent){
-        //boolean send =
         return entities.contains(ent);
     }
     private void spawnMynts(int antalPengar) {

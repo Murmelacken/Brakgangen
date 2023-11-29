@@ -111,7 +111,6 @@ public class gameHandler extends SurfaceView implements Runnable {
                             //game_running = false;
                             // vänta minst 5 sekunder så man får njuta av dödsskärmen
                             if ((System.currentTimeMillis()-transitionTimer) > 5000){
-
                                 Log.d("debugging", "transitiontimer:" + (System.currentTimeMillis()-transitionTimer));
                                 STOPTHEGAME = true;
                                 //avsluta
@@ -182,8 +181,6 @@ public class gameHandler extends SurfaceView implements Runnable {
                         threadGameMem.stop();
                         //nullifyAll();
                 }}
-
-
         }
     }
     private void nullifyAll(){
