@@ -161,7 +161,7 @@ public class gameHandler extends SurfaceView implements Runnable {
         game_running = false;
         game_pause = true;
         //nullifyAll();
-        while (threadGameMem.isAlive())  {//
+        if (threadGameMem.isAlive())  {//
                 try {
                     //if (threadGameMem.isInterrupted()){}
                     //Thread.currentThread().interrupt();
