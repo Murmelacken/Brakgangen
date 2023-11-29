@@ -81,7 +81,8 @@ public class gameHandler extends SurfaceView implements Runnable {
                     // kollar för vilka värden jag vill pausa spelet
                     if (entities.hasEnteredEscape || playerDead) {
                         pauseGame();
-
+                        transitionTimer = System.currentTimeMillis();
+                        //
                         //break;
                     }
                     //kör spelet som vanligt
@@ -90,7 +91,9 @@ public class gameHandler extends SurfaceView implements Runnable {
                 //om spelet är pausat
                 else{
                     //rita bakgrunden och skriv lite text
-                    paintBlack();
+                    if (mSurface.getSurface() != null){
+                    paintBlack();}
+
                     // om spelaren går genom tunnel
                     if (entities.hasEnteredEscape) {
                         // ta bort alla gamla instanser och fortsätt...
@@ -101,7 +104,7 @@ public class gameHandler extends SurfaceView implements Runnable {
                         }
                         // vänta och kör igång spelet igen med nya objekt
                         newTransitionAnimationScreen(System.currentTimeMillis());
-                    }
+                    }else{
                     //Spelaren har dött dvs health < 0
                         if (playerDead) {
                             //game_pause = true;
@@ -112,12 +115,13 @@ public class gameHandler extends SurfaceView implements Runnable {
                                 Log.d("debugging", "transitiontimer:" + (System.currentTimeMillis()-transitionTimer));
                                 STOPTHEGAME = true;
                                 //avsluta
+                                //nullifyAll();
                                 stopGame();
                             }
                         }else{
                             transitionTimer = System.currentTimeMillis();
                         }
-                    }
+                    }}
 
 
                 long timePerFrame = System.currentTimeMillis() - timeFrameStart;
@@ -165,16 +169,19 @@ public class gameHandler extends SurfaceView implements Runnable {
                     //if (threadGameMem.isInterrupted()){}
                     //Thread.currentThread().interrupt();
                     threadGameMem.interrupt();
-                    Log.d("debugging", "threadGameMem.join ");
+
                     threadGameMem.join(5000);
-                    //threadGameMem.stop();
+
                     Log.d("debugging", "efter join");
                 } catch (InterruptedException e) {
                     Log.e("Error", "Game Thread unable to join");
                     e.printStackTrace();
                 } finally {
-                    nullifyAll();
-                }
+                    if (threadGameMem.isAlive()){
+                        Log.d("debugging", "threadGameMem.isdaemon " + threadGameMem.isDaemon());
+                        threadGameMem.stop();
+                        //nullifyAll();
+                }}
 
 
         }

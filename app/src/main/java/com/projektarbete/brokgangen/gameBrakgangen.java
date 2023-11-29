@@ -29,7 +29,7 @@ public class gameBrakgangen extends AppCompatActivity {
                 //dölj statusrad
                 controller.hide(WindowInsets.Type.statusBars());
                 controller.hide(WindowInsets.Type.navigationBars());
-                controller.show(WindowInsets.Type.systemBars());
+                //controller.show(WindowInsets.Type.systemBars());
             }
         }
         runningGame = runGame();

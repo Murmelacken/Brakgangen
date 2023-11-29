@@ -60,11 +60,15 @@ public class EntityHolder extends Activity {
                                 }
                                 //
                                 }else if (b instanceof myntObjekt){
-                                    guldpengar+=1;
-                                    if (playerCheck){noiseMaker.playPling();}
-                                    if (guldpengar % 3 == 0){
-                                        setSpawnAnotherEnemy = true;
+
+                                    if (playerCheck){
+                                        noiseMaker.playPling();
+                                        guldpengar+=1;
+                                        if (guldpengar % 4 == 0 && guldpengar>0){
+                                            setSpawnAnotherEnemy = true;
+                                        }
                                     }
+
                                     ((myntObjekt) b).remove();
                                 } else if (b instanceof cornerFigure){
                                     if (playerCheck){noiseMaker.playImmovable();}
