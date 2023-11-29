@@ -125,9 +125,8 @@ public class gameHandler extends SurfaceView implements Runnable {
                     framesPerSecond = 1000 / timePerFrame;
                 }
             }
-       this.getContext().startActivity(new Intent(getContext(), MainMenu.class));
-
-        // threadGameMem.interrupt();
+//       this.getContext().startActivity(new Intent(getContext(), MainMenu.class));
+        threadGameMem.interrupt();
     }
 
     private void paintBlack(){
@@ -160,7 +159,7 @@ public class gameHandler extends SurfaceView implements Runnable {
         Log.d("debugging", "försöker stänga av ");
         game_running = false;
         game_pause = true;
-        //nullifyAll();
+       ;
         if (threadGameMem.isAlive())  {//
                 try {
                     //if (threadGameMem.isInterrupted()){}
@@ -173,6 +172,8 @@ public class gameHandler extends SurfaceView implements Runnable {
                 } catch (InterruptedException e) {
                     Log.e("Error", "Game Thread unable to join");
                     e.printStackTrace();
+                } finally {
+                    nullifyAll();
                 }
 
 
