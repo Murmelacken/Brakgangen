@@ -2,6 +2,7 @@ package com.projektarbete.brokgangen;
 
 import android.content.Context;
 import android.content.Entity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -27,26 +28,15 @@ public class gameHandler extends SurfaceView implements Runnable {
     private SurfaceHolder mSurface;
     private Canvas gameCanvas;
     EntityHolder entities;
-    //playableCharacter memCharacter;
     Paint memPaint;
     NoiseMaker noiseMaker;
-    //Bitmap bgTile;
-    protected final int mSX;
-    protected final int mSY;
+    protected final int mSX, mSY;
     private int memFontSize;
     private int memFontMargin;
     protected long framesPerSecond;
     protected boolean bgMusicSwitch;
-    private boolean drawOnceBoolean = false;
     protected boolean downPressed = false;
-    private int[] savedPositionBeforeExit;
-    private int animationOverlapCounter;
-    private boolean enteredEscape;
-    private boolean setSpawnAnotherEnemy;
-    private boolean startNewGame;
     private boolean playerDead = false;
-    public boolean doStop = false;
-    private int startRunningFrom;
     public gameHandler(Context context, int pixelsHorisontal, int pixelsVertical, boolean musicSwitch) {
         super(context);
         bgMusicSwitch = musicSwitch;
@@ -84,43 +74,60 @@ public class gameHandler extends SurfaceView implements Runnable {
     public void run() {
             while (game_running) {
                 long timeFrameStart = System.currentTimeMillis();
+                //om ej pausat
                 if (!game_pause) {
+                    //om spelaren är död, sätt variabel till true
                     playerDead = entities.checkHealth();
+                    // kollar för vilka värden jag vill pausa spelet
                     if (entities.hasEnteredEscape || playerDead) {
                         pauseGame();
+
+                        //break;
                     }
+                    //kör spelet som vanligt
                     handleFrameSetup();
-                } else{ //om spelet är pausat
+                }
+                //om spelet är pausat
+                else{
+                    //rita bakgrunden och skriv lite text
                     paintBlack();
+                    // om spelaren går genom tunnel
                     if (entities.hasEnteredEscape) {
+                        // ta bort alla gamla instanser och fortsätt...
                         if (!deSpawnOnlyOnce) {
                             transitionTimer = System.currentTimeMillis();
                             entities.deSpawnEverything();
                             deSpawnOnlyOnce = true;
                         }
+                        // vänta och kör igång spelet igen med nya objekt
                         newTransitionAnimationScreen(System.currentTimeMillis());
-                    }else{
+                    }
+                    //Spelaren har dött dvs health < 0
                         if (playerDead) {
                             //game_pause = true;
-                            game_running = false;
+                            //game_running = false;
+                            // vänta minst 5 sekunder så man får njuta av dödsskärmen
                             if ((System.currentTimeMillis()-transitionTimer) > 5000){
 
                                 Log.d("debugging", "transitiontimer:" + (System.currentTimeMillis()-transitionTimer));
                                 STOPTHEGAME = true;
-                                //stopGame();
+                                //avsluta
+                                stopGame();
                             }
                         }else{
                             transitionTimer = System.currentTimeMillis();
                         }
                     }
-                }
+
 
                 long timePerFrame = System.currentTimeMillis() - timeFrameStart;
                 if (timePerFrame > 0) {
                     framesPerSecond = 1000 / timePerFrame;
                 }
             }
+       this.getContext().startActivity(new Intent(getContext(), MainMenu.class));
 
+        // threadGameMem.interrupt();
     }
 
     private void paintBlack(){
@@ -135,10 +142,6 @@ public class gameHandler extends SurfaceView implements Runnable {
         }
     }
     private void newTransitionAnimationScreen(long timeElapsed){
-       // memCharacter.movement();
-       // paintBlack();
-        // när gubben sprungit till andra sidan skärmen
-        // new int[]{savedPositionBeforeExit,savedPositionBeforeExit[1]
         if (timeElapsed - transitionTimer > 400){//(memCharacter.objectPosition[0] == startRunningFrom){ //mSX-runner.objWidth-2
             entities.hasEnteredEscape = false;
             //deSpawnEverything();
@@ -146,7 +149,7 @@ public class gameHandler extends SurfaceView implements Runnable {
             deSpawnOnlyOnce = false;
             //spelet är igång igen
             //Stoppa in nya objekt att interagera med
-            entities.spawnNewRoom(savedPositionBeforeExit);//ska vara inverterad X-position
+            entities.spawnNewRoom(entities.charPositionBefore);//ska vara inverterad X-position
         }
     }
     public void stopBgMusicEngine() {
@@ -157,14 +160,14 @@ public class gameHandler extends SurfaceView implements Runnable {
         Log.d("debugging", "försöker stänga av ");
         game_running = false;
         game_pause = true;
-        nullifyAll();
-        if (threadGameMem.isAlive())  {//
+        //nullifyAll();
+        while (threadGameMem.isAlive())  {//
                 try {
                     //if (threadGameMem.isInterrupted()){}
                     //Thread.currentThread().interrupt();
+                    threadGameMem.interrupt();
                     Log.d("debugging", "threadGameMem.join ");
                     threadGameMem.join(5000);
-                    threadGameMem.interrupt();
                     //threadGameMem.stop();
                     Log.d("debugging", "efter join");
                 } catch (InterruptedException e) {

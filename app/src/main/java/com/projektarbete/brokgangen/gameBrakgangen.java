@@ -29,7 +29,7 @@ public class gameBrakgangen extends AppCompatActivity {
                 //dölj statusrad
                 controller.hide(WindowInsets.Type.statusBars());
                 controller.hide(WindowInsets.Type.navigationBars());
-                //controller.show(WindowInsets.Type.systemBars());
+                controller.show(WindowInsets.Type.systemBars());
             }
         }
         runningGame = runGame();
@@ -54,12 +54,11 @@ public class gameBrakgangen extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        //if (runningGame.doStop){finish();runningGame = null;}
         // runningGame.cancelCanvas();
         runningGame.stopGame();
-        if (runningGame != null){
-            runningGame = null;
-        }
+       // if (runningGame != null){
+       //     runningGame = null;
+       // }
         finish();
         intent_mainmenu = new Intent(this, MainMenu.class);
         startActivity(intent_mainmenu);
