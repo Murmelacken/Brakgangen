@@ -132,8 +132,8 @@ public class PlayableCharacter extends MovableEntity {
     public void onCollision(RectF otherObject) {
         boolean chkX = objectPosition[0] >= otherObject.left + (otherObject.width() / 2);
         boolean chkY = objectPosition[1] >= otherObject.top + (otherObject.height() / 2);
-        int adjY = objHeight/9;
-        int adjX = objWidth/9;
+        int adjY = objHeight/8;
+        int adjX = objWidth/8;
         if (chkY){ //inte perfekt metod, har nu delat upp kollision i fyra delar
             updateObjectPosition(0,adjY);
             setNewObjectPosition(new int[]{objectPosition[0],objectPosition[1]+adjY});

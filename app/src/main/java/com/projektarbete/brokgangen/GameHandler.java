@@ -198,11 +198,9 @@ public class GameHandler extends SurfaceView implements Runnable {
            // if (!game_pause){}    else{}
                 entities.checkFigureMovement();
                 entities.drawTheseObjectsAndThings(gameCanvas);
-                //entities.checkCollisions(noiseMaker, savedPositionBeforeExit, enteredEscape);
                 entities.newCollisionCheck(noiseMaker);
-                //entities.checkOutOfMapBoundaries(entities.memCharacter.objectCBox);
-            writeText();
-            mSurface.unlockCanvasAndPost(gameCanvas);
+                writeInformationText();
+                mSurface.unlockCanvasAndPost(gameCanvas);
         }
     }
 
@@ -226,20 +224,19 @@ public class GameHandler extends SurfaceView implements Runnable {
         gameCanvas.drawText(str2, xPos, yPos+2*(memFontSize+memFontMargin), memPaint);
         gameCanvas.drawText(str3, xPos, yPos+3*(memFontSize+memFontMargin), memPaint);
     }
-    protected void writeText() {
-        //
-        //int backgroundColor = Color.BLACK;
+    protected void writeInformationText() {
         memPaint.setColor(Color.BLACK);
         float rectHeight = (memFontSize + memFontMargin) * 2;
         gameCanvas.drawRect(0, mSY - rectHeight, mSX, mSY + 75, memPaint);
         memPaint.setColor(Color.WHITE);
         memPaint.setTextSize(memFontSize); //" FPS: " + framesPerSecond +
-        String writeString = ("Guldpengar: " + entities.guldpengar + " Hälsa: " + entities.memCharacter.health);
-        float textWidth = memPaint.measureText(writeString);
+        String strHealthLevel= ("Nivå: " + (int) entities.currentLeveLCounter + " Hälsa: " + entities.playerHealthCounter());
+        String strGuldpengar = "Guldpengar: " + entities.guldpengar;
+        float textWidth = memPaint.measureText(strGuldpengar);
         float xPosition = (mSX - textWidth) / 2; // Centrera texten horisontellt
-        float yPosition = mSY - rectHeight / 2 + memFontSize / 3; // Centrera texten vertikalt
-        gameCanvas.drawText(writeString, xPosition, yPosition, memPaint);
-        //gameCanvas.drawText(writeString, memFontMargin, memFontSize, memPaint);
+        float yPosition = mSY - rectHeight / 2 ; //memFontSize / 21; // Centrera texten vertikalt
+        gameCanvas.drawText(strGuldpengar, xPosition, yPosition, memPaint);
+        gameCanvas.drawText(strHealthLevel, xPosition,yPosition+memFontSize+memFontMargin,memPaint);
     }
 
     @Override

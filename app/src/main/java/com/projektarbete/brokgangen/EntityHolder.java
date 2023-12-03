@@ -23,6 +23,7 @@ public class EntityHolder extends Activity {
     private Bitmap background;
     public int guldpengar;
     public boolean hasEnteredEscape;
+    public double currentLeveLCounter;
     int mSX, mSY;
     Context c;
     private int spawnEscapeTunnelOnSide = 0;
@@ -87,6 +88,7 @@ public class EntityHolder extends Activity {
                                         noiseMaker.playEscapeSound();
                                         charPositionBefore = a.objectPosition;
                                         //pauseGame();
+                                        currentLeveLCounter += 0.5;
                                         hasEnteredEscape = true;
                                     }else {
                                         a.onCollision(bBox);
@@ -157,6 +159,10 @@ public class EntityHolder extends Activity {
         }
         // Rensa listan efter att alla objekt är ritade
         objectsToDraw.clear();
+    }
+
+    public String playerHealthCounter() {
+        return String.valueOf(memCharacter.health);
     }
 
     private static class DrawObject {
