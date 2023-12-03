@@ -1,6 +1,7 @@
 package com.projektarbete.brokgangen;
 
 import android.content.Context;
+import android.content.Entity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.RectF;

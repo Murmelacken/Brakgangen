@@ -1,18 +1,17 @@
 package com.projektarbete.brokgangen;
 
-import static com.projektarbete.brokgangen.bitmapHandler.speglaBild;
+import static com.projektarbete.brokgangen.BitmapHandler.speglaBild;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.RectF;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class myntObjekt extends immovableEntity{
+public class MyntObjekt extends ImmovableEntity {
     protected Bitmap mBp;
     protected int[] objectPosition = new int[2];
     protected RectF objectCBox = new RectF();
@@ -22,7 +21,7 @@ public class myntObjekt extends immovableEntity{
     List<Bitmap> movingStateBitmaps = new ArrayList<>();
     protected int imageCount;
     private int delayCount = 0;
-    public myntObjekt(Context context, int SX, int SY, int[] placement) {
+    public MyntObjekt(Context context, int SX, int SY, int[] placement) {
         super(context, SX, SY, placement);
         importGuldPengar(context);
         imageCount = movingStateBitmaps.size()-1;

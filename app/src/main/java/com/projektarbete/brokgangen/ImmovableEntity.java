@@ -5,9 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 
-public abstract class immovableEntity extends entity {
+public abstract class ImmovableEntity extends entity {
 
-    public immovableEntity(Context context, int SX, int SY, int[] placement) {
+    public ImmovableEntity(Context context, int SX, int SY, int[] placement) {
         super(context, SX, SY, placement);
     }
 

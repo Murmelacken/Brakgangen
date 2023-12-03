@@ -9,8 +9,8 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 
-public class gameBrakgangen extends AppCompatActivity {
-    gameHandler runningGame;
+public class GameBrakgangen extends AppCompatActivity {
+    GameHandler runningGame;
     public Intent intent_mainmenu;
 
     @Override
@@ -35,9 +35,9 @@ public class gameBrakgangen extends AppCompatActivity {
         runningGame = runGame();
 
     }
-    protected gameHandler runGame(){
+    protected GameHandler runGame(){
         DisplayMetrics disp = getResources().getDisplayMetrics();
-        gameHandler myGame = new gameHandler(this, disp.widthPixels, disp.heightPixels, MainMenu.checkSwitch());
+        GameHandler myGame = new GameHandler(this, disp.widthPixels, disp.heightPixels, MainMenu.checkSwitch());
         setContentView(myGame);
         return myGame;
     }

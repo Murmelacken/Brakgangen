@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
-public class aboutTheGame extends AppCompatActivity {
+public class AboutTheGame extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

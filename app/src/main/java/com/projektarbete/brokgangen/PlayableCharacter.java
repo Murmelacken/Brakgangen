@@ -1,17 +1,16 @@
 package com.projektarbete.brokgangen;
 
-import static com.projektarbete.brokgangen.bitmapHandler.removeBackground;
+import static com.projektarbete.brokgangen.BitmapHandler.removeBackground;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.RectF;
-import android.util.Log;
 
 import java.util.ArrayList;
 
-public class playableCharacter extends movableEntity{
+public class PlayableCharacter extends MovableEntity {
         protected int[] objectPosition = new int[2];
         public int[] newPosition = new int[2];
         protected RectF objectCBox = new RectF();
@@ -26,7 +25,7 @@ public class playableCharacter extends movableEntity{
     ArrayList<Bitmap> movingStateBitmaps = new ArrayList<>();
     ArrayList<Bitmap> attackingStateBitmaps = new ArrayList<>();
 
-    public playableCharacter(Context context, int SX, int SY, int[] placement) {
+    public PlayableCharacter(Context context, int SX, int SY, int[] placement) {
         super(context, SX, SY, placement);
         mSX = SX;
         mSY = SY;

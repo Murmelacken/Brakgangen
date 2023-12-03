@@ -1,14 +1,14 @@
 package com.projektarbete.brokgangen;
 
-import static com.projektarbete.brokgangen.bitmapHandler.speglaBild;
+import static com.projektarbete.brokgangen.BitmapHandler.speglaBild;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 
-public class escapeTunnel extends immovableEntity{
-    public escapeTunnel(Context context, int SX, int SY, int[] placement, int sida) {
+public class EscapeTunnel extends ImmovableEntity {
+    public EscapeTunnel(Context context, int SX, int SY, int[] placement, int sida) {
         super(context, SX, SY, placement);
         mBp = BitmapFactory.decodeResource(context.getResources(),R.drawable.tounel4);
         objWidth = mBp.getWidth();

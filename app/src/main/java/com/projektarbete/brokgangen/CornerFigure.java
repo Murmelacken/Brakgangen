@@ -6,9 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
-import android.util.Log;
 
-public class cornerFigure extends immovableEntity{
+public class CornerFigure extends ImmovableEntity {
     protected Bitmap mBp;
     protected int[] objectPosition;
    // private int[] newPosition = new int[2];
@@ -21,7 +20,7 @@ public class cornerFigure extends immovableEntity{
     protected int imageCount;
     //ArrayList<Bitmap> movingStateBitmaps = new ArrayList<>();
     //ArrayList<Bitmap> attackingStateBitmaps = new ArrayList<>();
-    public cornerFigure(Context context, int SX, int SY,int[] placement, int i) {
+    public CornerFigure(Context context, int SX, int SY, int[] placement, int i) {
         super(context, SX, SY,placement);
         objectPosition = placement;
         mSX = SX;

@@ -5,9 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 
-public class barrel extends immovableEntity {
+public class Barrel extends ImmovableEntity {
     public Bitmap mBp;
-    public barrel(Context context, int SX, int SY, int[] placement) {
+    public Barrel(Context context, int SX, int SY, int[] placement) {
         super(context, SX, SY, placement);
         mSX = SX;
         mSY = SY;

@@ -1,26 +1,17 @@
 package com.projektarbete.brokgangen;
 
 import android.content.Context;
-import android.content.Entity;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceControl;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class gameHandler extends SurfaceView implements Runnable {
+public class GameHandler extends SurfaceView implements Runnable {
     private boolean game_running = false;
     private boolean game_pause = true;
     public boolean STOPTHEGAME = false;
@@ -37,7 +28,7 @@ public class gameHandler extends SurfaceView implements Runnable {
     protected boolean bgMusicSwitch;
     protected boolean downPressed = false;
     private boolean playerDead = false;
-    public gameHandler(Context context, int pixelsHorisontal, int pixelsVertical, boolean musicSwitch) {
+    public GameHandler(Context context, int pixelsHorisontal, int pixelsVertical, boolean musicSwitch) {
         super(context);
         bgMusicSwitch = musicSwitch;
         mSX = pixelsHorisontal;

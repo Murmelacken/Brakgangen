@@ -5,14 +5,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.RectF;
-import android.util.Log;
 
-public class passageWay extends immovableEntity{
+public class PassageWay extends ImmovableEntity {
     public Bitmap mBp;
     //private int mSX;
     //private int mSY;
     private int[] extendedPlacement;
-    public passageWay(Context context, int SX, int SY, int[] placement, int i) {
+    public PassageWay(Context context, int SX, int SY, int[] placement, int i) {
         super(context, SX, SY, placement);
         mBp = importBitmap(context);
         extendedPlacement = new int[]{placement[0],placement[1], placement[0]+mBp.getWidth(),placement[1]+mBp.getHeight()};

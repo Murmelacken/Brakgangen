@@ -13,9 +13,9 @@ import java.util.List;
 
 public class EntityHolder extends Activity {
     public ArrayList<entity> entities = new ArrayList<>();
-    public ArrayList<movableEntity> enemies = new ArrayList<>();
-    public ArrayList<immovableEntity> immovables = new ArrayList<>();
-    public playableCharacter memCharacter;
+    public ArrayList<MovableEntity> enemies = new ArrayList<>();
+    public ArrayList<ImmovableEntity> immovables = new ArrayList<>();
+    public PlayableCharacter memCharacter;
     public static int antalPengar = 10;
     public static int antalTunnor = 15;
     public boolean setSpawnAnotherEnemy;
@@ -40,26 +40,26 @@ public class EntityHolder extends Activity {
         checkOutOfMapBoundaries(memCharacter.getObjectCBox());
         for (int i = 0; i < entities.size(); i++){
             entity a = entities.get(i);
-            boolean playerCheck =  a instanceof playableCharacter;
+            boolean playerCheck =  a instanceof PlayableCharacter;
             RectF aBox = a.getObjectCBox();
-            if (!(a instanceof immovableEntity)){
+            if (!(a instanceof ImmovableEntity)){
                 for (int j = i+1; j < entities.size(); j++){
                     entity b = entities.get(j);
                     RectF bBox = b.getObjectCBox();
                     //om dessa ting kolliderar...
                     if (RectF.intersects(aBox, bBox)) {
                         //om kollision av a sker mot orörligt ting...
-                        if (b instanceof immovableEntity){
+                        if (b instanceof ImmovableEntity){
                             // soundtrig innebär spelarkaraktärens kollision
                             // då gör vi ljud
-                            if (b instanceof barrel) {
+                            if (b instanceof Barrel) {
                                 //sätter rektangeln ned mot botten av tunnnan
                                 if (aBox.bottom > bBox.bottom - b.objHeight * 0.33) {
                                     if (playerCheck){noiseMaker.playImmovable();}
                                     a.onCollision(bBox);
                                 }
                                 //
-                                }else if (b instanceof myntObjekt){
+                                }else if (b instanceof MyntObjekt){
 
                                     if (playerCheck){
                                         noiseMaker.playPling();
@@ -69,12 +69,12 @@ public class EntityHolder extends Activity {
                                         }
                                     }
 
-                                    ((myntObjekt) b).remove();
-                                } else if (b instanceof cornerFigure){
+                                    ((MyntObjekt) b).remove();
+                                } else if (b instanceof CornerFigure){
                                     if (playerCheck){noiseMaker.playImmovable();}
                                     //immovableEntity immovableObj = (immovableEntity) en;// om man behöver specifika funktioner genom heritance
                                         a.onCollision(bBox);
-                            }else if (b instanceof escapeTunnel){
+                            }else if (b instanceof EscapeTunnel){
                                 if (playerCheck){
                                     //immovableEntity immovableObj = (immovableEntity) en;
                                     boolean underLimit = a.objectPosition[1] < aBox.bottom;
@@ -210,12 +210,12 @@ public class EntityHolder extends Activity {
     }
 
     public void spawnPlayer(){
-        memCharacter = new playableCharacter(c, mSX, mSY, new int[]{mSX / 2, 0});
+        memCharacter = new PlayableCharacter(c, mSX, mSY, new int[]{mSX / 2, 0});
         entities.add(memCharacter);
     }
     public void spawnCorners(){
         for (int i = 0; i < 4; i++) {
-            cornerFigure corner = new cornerFigure(c, mSX, mSY, new int[]{0, 0}, i);
+            CornerFigure corner = new CornerFigure(c, mSX, mSY, new int[]{0, 0}, i);
             entities.add(corner);
         }
     }
@@ -233,7 +233,7 @@ public class EntityHolder extends Activity {
         spawnEscape();
     }
     public void spawnEscape(){
-        entities.add(new escapeTunnel(c,mSX,mSY,new int[]{0,0},getAndSetEscapeTunnel()));
+        entities.add(new EscapeTunnel(c,mSX,mSY,new int[]{0,0},getAndSetEscapeTunnel()));
         //antingen 0 (vänster) eller 1 (höger)
     }
     void spawnEnemy(){
@@ -248,8 +248,8 @@ public class EntityHolder extends Activity {
         entities.removeIf(ent -> ent instanceof NPC);
     }
     private void spawnPassage(int i){
-        entities.add(new passageWay(c,mSX,mSY,new int[]{mSX/3,0},i));
-        entities.add(new passageWay(c,mSX,mSY,new int[]{mSX/3,0},i));
+        entities.add(new PassageWay(c,mSX,mSY,new int[]{mSX/3,0},i));
+        entities.add(new PassageWay(c,mSX,mSY,new int[]{mSX/3,0},i));
 
     }
     public boolean checkIfContainsEntity(entity ent){
@@ -257,13 +257,13 @@ public class EntityHolder extends Activity {
     }
     private void spawnMynts(int antalPengar) {
         for (int i = 0; i < antalPengar*2; i++) {
-            entities.add(new myntObjekt(c, mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4)));
+            entities.add(new MyntObjekt(c, mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4)));
 
         }
     }
     private void spawnBarrels(int antalTunnor) {
         for (int i = 0; i < antalTunnor; i++) {
-            entities.add(new barrel(c, mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4)));
+            entities.add(new Barrel(c, mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4)));
         }
 
     }

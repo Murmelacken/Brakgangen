@@ -6,11 +6,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
-import android.util.Log;
 
 import java.util.ArrayList;
 
-public class NPC extends movableEntity{
+public class NPC extends MovableEntity {
     protected int[] objectPosition = new int[2];
     protected RectF objectCBox = new RectF();
   //  protected int mSX, mSY;

@@ -7,9 +7,9 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-public class bitmapHandler {
+public class BitmapHandler {
     private static List<Bitmap> bitmapList;
-    public bitmapHandler(ArrayList<Bitmap> pass){
+    public BitmapHandler(ArrayList<Bitmap> pass){
         bitmapList = pass;
     }
     static Bitmap bitmapHandlerGetBitmap(ArrayList<Bitmap> arrayList, int i){

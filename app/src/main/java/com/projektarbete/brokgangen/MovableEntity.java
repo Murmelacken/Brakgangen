@@ -4,12 +4,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 
-public abstract class movableEntity extends entity {
+public abstract class MovableEntity extends entity {
     private int faultX;
     private int faultY;
     protected int speedDivisor = 70;
 
-    public movableEntity(Context context, int SX, int SY, int[] placement) {
+    public MovableEntity(Context context, int SX, int SY, int[] placement) {
         super(context, SX, SY, placement);
     }
     @Override

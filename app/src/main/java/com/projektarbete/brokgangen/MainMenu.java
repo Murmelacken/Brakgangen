@@ -36,8 +36,8 @@ public class MainMenu extends AppCompatActivity {
         button_aboutGame = findViewById(R.id.btnAboutGame);
         button_playGame = findViewById(R.id.btnPlay);
         button_musicSwitch = findViewById(R.id.checkbox_music);
-        intent_playGame = new Intent(MainMenu.this, gameBrakgangen.class);
-        intent_aboutGame = new Intent(MainMenu.this, aboutTheGame.class);
+        intent_playGame = new Intent(MainMenu.this, GameBrakgangen.class);
+        intent_aboutGame = new Intent(MainMenu.this, AboutTheGame.class);
 
         button_playGame.setOnClickListener(v -> startActivity(intent_playGame)); //startActivity(intent_playGame)
         button_aboutGame.setOnClickListener(v -> startActivity(intent_aboutGame));
