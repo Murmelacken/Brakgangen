@@ -40,26 +40,38 @@ public class Enemy extends MovableEntity {
     private void importAndDivide(Context context){
         Bitmap bigMap = BitmapFactory.decodeResource(context.getResources(), R.drawable.vatterattack); //100x74 BREDD x HÖJD
         int w1 = 0;
-        int w = 72;//bigMap.getWidth()/4;
+        int w = 68;//bigMap.getWidth()/4;
         int h = bigMap.getHeight()/2;
+        int c1 = 15;
+        int c2 = 2;
         movingStateBitmaps.add(Bitmap.createBitmap(bigMap,0,0,w,h));
         // Log.d("debugging", "stopp 1");
-        movingStateBitmaps.add(Bitmap.createBitmap(bigMap, w-2,0,w-8,h)); //vatte[0]; //Bitmap.createBitmap(bigMap, 25,0,2*w,h);
+        movingStateBitmaps.add(Bitmap.createBitmap(bigMap, w-c2,0,w-c1,h)); //vatte[0]; //Bitmap.createBitmap(bigMap, 25,0,2*w,h);
         //Log.d("debugging", "stopp 2");
-        movingStateBitmaps.add(Bitmap.createBitmap(bigMap,w*2-4,0,w-8,h)); //vatte[0]; //Bitmap.createBitmap(bigMap,49,0,3*w,h);
+        movingStateBitmaps.add(Bitmap.createBitmap(bigMap,w*2-c2*2,0,w-c1,h)); //vatte[0]; //Bitmap.createBitmap(bigMap,49,0,3*w,h);
         movingStateBitmaps.add(speglaBild(movingStateBitmaps.get(0)));
         movingStateBitmaps.add(speglaBild(movingStateBitmaps.get(1)));
         movingStateBitmaps.add(speglaBild(movingStateBitmaps.get(2)));
         //Log.d("debugging", "stopp 3");
-        int w2 = bigMap.getWidth()/2-11;
+        c1 = 11;//-11;
+        c2 = 2;
+        int c3 = 5;
+        int w2 = bigMap.getWidth()/2-c1;
+        int wa2 = bigMap.getWidth()-w2-c3;
         int h2 = bigMap.getHeight()/2;
         rightAttackingBitmaps.add(Bitmap.createBitmap(bigMap,
-                0,h2+2,
-                w2,h2-2));
+                0,h2+c2,
+                w2,h2-c2));
+        /* rightAttackingBitmaps.add(Bitmap.createBitmap(bigMap,
+                0,h2+c2,
+                w2,h2-c2));
         //Log.d("debugging", "stopp 4");
+       rightAttackingBitmaps.add(Bitmap.createBitmap(bigMap,
+                w2+c2,h2+c2,
+                wa2,h2-c2));*/
         rightAttackingBitmaps.add(Bitmap.createBitmap(bigMap,
-        w2-12,h2+2,
-        w2,h2-2));
+                w2+c2,h2+c2,
+                wa2,h2-c2));
         //Log.d("debugging", "stopp 4" + vatteAttack[1] + vatteAttack[0]);
         Bitmap tmp = rightAttackingBitmaps.get(0);
         leftAttackingBitmaps.add(speglaBild(tmp));
