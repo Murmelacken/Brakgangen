@@ -21,9 +21,11 @@ public class PlayableCharacter extends MovableEntity {
         protected int imageCount;
         public int health;
         float speed = 10.0f;
+        boolean unhittable = false;
+        long lastHit;
 
     ArrayList<Bitmap> movingStateBitmaps = new ArrayList<>();
-    ArrayList<Bitmap> attackingStateBitmaps = new ArrayList<>();
+//    ArrayList<Bitmap> attackingStateBitmaps = new ArrayList<>();
 
     public PlayableCharacter(Context context, int SX, int SY, int[] placement) {
         super(context, SX, SY, placement);
@@ -32,7 +34,6 @@ public class PlayableCharacter extends MovableEntity {
         health = 20;
         setBitmapArrayList(context);
         setObjectPosition(placement);
-        //setObjectCBox(new RectF(objectPosition[0],objectPosition[1],objectPosition[0]+objWidth,objectPosition[0]+objHeight));
         setObjectCBox();
         imageCount = movingStateBitmaps.size()-1;
     }
@@ -51,23 +52,22 @@ public class PlayableCharacter extends MovableEntity {
         //Log.d("debugging", "width x height:" + charRectangle[0] + " " + charRectangle[1]);
     }
     public void changeSpeed(float change){
-        speed = change;
+        speed += change;
 }
     public void movement(){
         int[] wP = getNewPos();
-        int rim = 5;
-        if (Math.abs(wP[0]-objectPosition[0]) > rim || Math.abs(wP[1]-objectPosition[1]) > rim){
+        int moveHysteres = 5;
+        if (Math.abs(wP[0]-objectPosition[0]) > moveHysteres || Math.abs(wP[1]-objectPosition[1]) > moveHysteres){
             setMoving(true);
             float dX = newPosition[0] - objectPosition[0];
             float dY = newPosition[1] - objectPosition[1];
             // avståndet == hypotenusan
             float distance = (float) Math.hypot(dX, dY);
-            // Normaliserar felet genom att dividera med avståndet
-            // för att få enhetsvektorn (minsta enheten som sedan hanteras med skalär)
+            // normaliserar felet genom att dividera med avståndet
+            // för att få enhetsvektorn (minsta enheten som sedan hanteras med skalär = multiplikationskonstant för matriser)
             float unitX = dX / distance;
             float unitY = dY / distance;
-            // Ange hastighetskonstanten
-            // Beräkna det faktiska avståndet att förflytta sig
+            // moveX/Y blir då storleken på "klivet" => förrapositionen += moveX
             float moveX = unitX * speed;
             float moveY = unitY * speed;
             // Uppdatera spelarens position och låda
@@ -132,32 +132,35 @@ public class PlayableCharacter extends MovableEntity {
     public void onCollision(RectF otherObject) {
         boolean chkX = objectPosition[0] >= otherObject.left + (otherObject.width() / 2);
         boolean chkY = objectPosition[1] >= otherObject.top + (otherObject.height() / 2);
-        int adjY = objHeight/9;//mSY/80;
-        int adjX = objWidth/9;//mSX/80;
-        //Log.d("debugging", "Funnen kollision chx: " + chkX + " chY: " + chkY);
-        //Log.d("debugging", "otherOBjeckt: " + otherObject);
+        int adjY = objHeight/9;
+        int adjX = objWidth/9;
         if (chkY){ //inte perfekt metod, har nu delat upp kollision i fyra delar
-            //objectPosition[1] += adjY;
             updateObjectPosition(0,adjY);
             setNewObjectPosition(new int[]{objectPosition[0],objectPosition[1]+adjY});
         }else{
-            //objectPosition[1] -= adjY;
             updateObjectPosition(0,-adjY);
             setNewObjectPosition(new int[]{objectPosition[0],objectPosition[1]-adjY});
         }
         if (chkX){
-            //objectPosition[0] += adjX;
             updateObjectPosition(adjX,0);
             setNewObjectPosition(new int[]{objectPosition[0]+adjX,objectPosition[1]});
 
         }else{
-            //objectPosition[0] -= adjX;
             updateObjectPosition(-adjX,0);
             setNewObjectPosition(new int[]{objectPosition[0]-adjX,objectPosition[1]});
         }
     }
     public void damage(int dmg){
-        health -= dmg;
+        if (!unhittable){
+            health -= dmg;
+            unhittable = true;
+            lastHit = System.currentTimeMillis();
+        }else{
+            if (System.currentTimeMillis()-lastHit > 250){
+                unhittable = false;
+                this.damage(1);
+            }
+        }
     }
 
     public boolean isMoving() {

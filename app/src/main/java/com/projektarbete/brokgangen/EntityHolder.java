@@ -13,8 +13,8 @@ import java.util.List;
 
 public class EntityHolder extends Activity {
     public ArrayList<entity> entities = new ArrayList<>();
-    public ArrayList<MovableEntity> enemies = new ArrayList<>();
-    public ArrayList<ImmovableEntity> immovables = new ArrayList<>();
+    //public ArrayList<MovableEntity> enemies = new ArrayList<>();
+    //public ArrayList<ImmovableEntity> immovables = new ArrayList<>();
     public PlayableCharacter memCharacter;
     public static int antalPengar = 10;
     public static int antalTunnor = 15;
@@ -67,6 +67,9 @@ public class EntityHolder extends Activity {
                                         if (guldpengar % 4 == 0 && guldpengar>0){
                                             setSpawnAnotherEnemy = true;
                                         }
+                                        if (guldpengar % 10 == 0){
+                                            memCharacter.changeSpeed((float) -guldpengar/1000);
+                                        }
                                     }
 
                                     ((MyntObjekt) b).remove();
@@ -78,18 +81,13 @@ public class EntityHolder extends Activity {
                                 if (playerCheck){
                                     //immovableEntity immovableObj = (immovableEntity) en;
                                     boolean underLimit = a.objectPosition[1] < aBox.bottom;
-                                    //memCharacter.objectPosition[1] > immovableObj.objectPosition[1]+immovableObj.objHeight;
                                     boolean overLimit = a.objectPosition[1] > aBox.top;//immovableObj.objectPosition[1];
-                                    //Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
-
                                     if (underLimit && !overLimit){
                                         //karaktären går in i tunneln
-                                       // Log.d("escape", "underlimit: " + underLimit + " over: " + overLimit);
                                         noiseMaker.playEscapeSound();
                                         charPositionBefore = a.objectPosition;
                                         //pauseGame();
                                         hasEnteredEscape = true;
-                                        //enteredEscape = true;
                                     }else {
                                         a.onCollision(bBox);
                                 }
@@ -99,14 +97,14 @@ public class EntityHolder extends Activity {
                         }
                             //om kollision med rörligt ting
                             else{
-                                //har bara lagt in fienden NPC än så länge
-                                if (b instanceof NPC){
-                                    if (playerCheck){noiseMaker.playHit();
+                                //har bara lagt in den allmäna fienden Enemy än så länge
+                                // nya fiender är en smal sak
+                                if (b instanceof Enemy){
+                                    if (playerCheck){
+                                        noiseMaker.playHit();
                                         memCharacter.damage(1);
                                     }
-
                                     a.onCollision(bBox);
-
                                 }
                             }
                     }
@@ -187,7 +185,7 @@ public class EntityHolder extends Activity {
         return spawnEscapeTunnelOnSide;
     }
 
-    public void spawnInitial() {
+   /* public void spawnInitial() {
         spawnPlayer();
         spawnCorners();
         spawnEnemy();
@@ -196,12 +194,25 @@ public class EntityHolder extends Activity {
         spawnMynts(antalPengar);
         spawnBarrels(antalTunnor);
         spawnEscape();
+    }*/
+    public void spawnNewRoom(int[] placement){ //placement
+        if (!entities.contains(memCharacter) || memCharacter == null){
+            spawnPlayer();
+            memCharacter.setObjectPosition(placement);
+        }
+        spawnCorners();
+        spawnPassage(0);
+        spawnPassage(1);
+        spawnBarrels((int) (Math.random() * 10)+5);
+        spawnMynts((int) (Math.random() * 5)+5);
+        spawnEnemy();
+        spawnEscape();
     }
     public void checkFigureMovement() {
         memCharacter.movement();
         for (entity en : entities){
-            if (en instanceof NPC){
-                ((NPC) en).movement(memCharacter.getObjectPosition());
+            if (en instanceof Enemy){
+                ((Enemy) en).movement(memCharacter.getObjectPosition());
             }
         }
     }
@@ -219,25 +230,13 @@ public class EntityHolder extends Activity {
             entities.add(corner);
         }
     }
-    public void spawnNewRoom(int[] placement){
-        if (!entities.contains(memCharacter) && memCharacter != null){
-            spawnPlayer();
-            memCharacter.setObjectPosition(placement);
-        }
-        spawnCorners();
-        spawnPassage(0);
-        spawnPassage(1);
-        spawnBarrels((int) (Math.random() * 10)+5);
-        spawnMynts((int) (Math.random() * 5)+5);
-        spawnEnemy();
-        spawnEscape();
-    }
+
     public void spawnEscape(){
         entities.add(new EscapeTunnel(c,mSX,mSY,new int[]{0,0},getAndSetEscapeTunnel()));
         //antingen 0 (vänster) eller 1 (höger)
     }
     void spawnEnemy(){
-        entity temp = new NPC(c, mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4));
+        entity temp = new Enemy(c, mSX, mSY, newRandomPosition(0, mSY / 4, mSX / 3, mSY / 4));
         entities.add(temp);
     }
     void deSpawnEverything(){
@@ -245,7 +244,7 @@ public class EntityHolder extends Activity {
         entities.add(memCharacter);
     }
     public void deSpawnEnemies(){
-        entities.removeIf(ent -> ent instanceof NPC);
+        entities.removeIf(ent -> ent instanceof Enemy);
     }
     private void spawnPassage(int i){
         entities.add(new PassageWay(c,mSX,mSY,new int[]{mSX/3,0},i));

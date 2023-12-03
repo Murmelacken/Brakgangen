@@ -9,7 +9,7 @@ import android.graphics.RectF;
 
 import java.util.ArrayList;
 
-public class NPC extends MovableEntity {
+public class Enemy extends MovableEntity {
     protected int[] objectPosition = new int[2];
     protected RectF objectCBox = new RectF();
   //  protected int mSX, mSY;
@@ -24,7 +24,7 @@ public class NPC extends MovableEntity {
     private int lastKnownX;
     public int health;
     private int delayCount;
-    public NPC(Context context, int SX, int SY, int[] placement) {
+    public Enemy(Context context, int SX, int SY, int[] placement) {
         super(context, SX, SY, placement);
         //mSX = SX; mSY = SY;
         importAndDivide(context);

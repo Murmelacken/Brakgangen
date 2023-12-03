@@ -45,7 +45,7 @@ public class GameHandler extends SurfaceView implements Runnable {
         noiseMaker.bgMusic(this.getContext(), bgMusicSwitch);
         memFontMargin = mSX / 100 * 2; //fontmargin: 2%
         memFontSize = mSX / 100 * 6;   //fontSize:   6%
-        entities.spawnInitial();
+        entities.spawnNewRoom(new int[]{mSX/2,0});
         Log.d("debugging", "___STARTAR NYTT SPEL___");
         Log.d("debugging", "entities: " + entities);
     }
