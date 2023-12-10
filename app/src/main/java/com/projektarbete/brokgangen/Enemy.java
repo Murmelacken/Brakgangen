@@ -156,27 +156,27 @@ public class Enemy extends MovableEntity {
     public void onCollision(RectF otherObject) {
         boolean chkX = objectPosition[0] >= (otherObject.left + (otherObject.width() / 2));
         boolean chkY = objectPosition[1] >= (otherObject.top + (otherObject.height() / 2)) ;
-        int adjY = objHeight/20;
-        int adjX = objWidth/20;
+        int adjY = objHeight/10;
+        int adjX = objWidth/10;
         //Log.d("debugging", "Funnen kollision chx: " + chkX + " chY: " + chkY);
         //Log.d("debugging", "otherOBjeckt: " + otherObject);
         if (chkY){ //inte perfekt metod, har nu delat upp kollision i fyra delar
             //objectPosition[1] += adjY;
-            updateObjectPosition(0,adjY);
+            //updateObjectPosition(0,-adjY);
             setObjectPosition(new int[]{objectPosition[0],objectPosition[1]+adjY});
         }else{
             //objectPosition[1] -= adjY;
-            updateObjectPosition(0,-adjY);
-            setObjectPosition(new int[]{objectPosition[0],objectPosition[1]-adjY});
+            //updateObjectPosition(0,adjY);
+           setObjectPosition(new int[]{objectPosition[0],objectPosition[1]-adjY});
         }
         if (chkX){
             //objectPosition[0] += adjX;
-            updateObjectPosition(adjX,0);
-            setObjectPosition(new int[]{objectPosition[0]+adjX,objectPosition[1]});
+          //  updateObjectPosition(-adjX,0);
+          setObjectPosition(new int[]{objectPosition[0]+adjX,objectPosition[1]});
 
         }else{
             //objectPosition[0] -= adjX;
-            updateObjectPosition(-adjX,0);
+           // updateObjectPosition(adjX,0);
             setObjectPosition(new int[]{objectPosition[0]-adjX,objectPosition[1]});
         }
     }

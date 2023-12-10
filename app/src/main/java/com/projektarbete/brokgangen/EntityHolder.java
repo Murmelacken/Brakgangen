@@ -39,29 +39,34 @@ public class EntityHolder extends Activity {
     }
     public void newCollisionCheck(NoiseMaker noiseMaker){
         checkOutOfMapBoundaries(memCharacter.getObjectCBox());
+
         for (int i = 0; i < entities.size(); i++){
             entity a = entities.get(i);
             boolean playerCheck =  a instanceof PlayableCharacter;
             RectF aBox = a.getObjectCBox();
-            if (!(a instanceof ImmovableEntity)){
-                for (int j = i+1; j < entities.size(); j++){
+            if (a instanceof MovableEntity){
+                for (int j = 0; j < entities.size(); j++){
+                    if(j == i){continue;}
                     entity b = entities.get(j);
                     RectF bBox = b.getObjectCBox();
                     //om dessa ting kolliderar...
                     if (RectF.intersects(aBox, bBox)) {
                         //om kollision av a sker mot orörligt ting...
                         if (b instanceof ImmovableEntity){
-                            // soundtrig innebär spelarkaraktärens kollision
+                            // playerCheck innebär spelarkaraktärens kollision
                             // då gör vi ljud
+
                             if (b instanceof Barrel) {
+                                if (a instanceof Enemy){
+                                    //Log.d("debugging", "enemy to barrel c"); funkar
+                                }
                                 //sätter rektangeln ned mot botten av tunnnan
                                 if (aBox.bottom > bBox.bottom - b.objHeight * 0.33) {
-                                    if (playerCheck){noiseMaker.playImmovable();}
                                     a.onCollision(bBox);
-                                }
+                                    a.onCollision(bBox);
+                                    if (playerCheck){noiseMaker.playImmovable();}}
                                 //
                                 }else if (b instanceof MyntObjekt){
-
                                     if (playerCheck){
                                         noiseMaker.playPling();
                                         guldpengar+=1;
@@ -99,14 +104,14 @@ public class EntityHolder extends Activity {
                         }
                             //om kollision med rörligt ting
                             else{
-                                //har bara lagt in den allmäna fienden Enemy än så länge
+                                // har bara lagt in den allmänna fienden Enemy än så länge
                                 // nya fiender är en smal sak
                                 if (b instanceof Enemy){
+                                    a.onCollision(bBox);
                                     if (playerCheck){
                                         noiseMaker.playHit();
                                         memCharacter.damage(1);
                                     }
-                                    a.onCollision(bBox);
                                 }
                             }
                     }
